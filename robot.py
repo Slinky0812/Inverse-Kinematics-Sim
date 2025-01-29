@@ -1,26 +1,7 @@
 import pybullet as p
 import time
 import pybullet_data
+from pybullet_controller import RobotController
 
-physicsClient = p.connect(p.GUI)#or p.DIRECT for non-graphical version
-
-p.setAdditionalSearchPath(pybullet_data.getDataPath()) #optionally
-p.setGravity(0, 0, -10)
-planeId = p.loadURDF("plane.urdf")
-
-startPos = [0, 0, 1]
-startOrientation = p.getQuaternionFromEuler([0, 0, 0])
-boxId = p.loadURDF("r2d2.urdf", startPos, startOrientation)
-
-#set the center of mass frame (loadURDF sets base link frame) startPos/Ornp.resetBasePositionAndOrientation(boxId, startPos, startOrientation)
-for i in range (10000):
-    p.stepSimulation()
-    cubePos, cubeOrn = p.getBasePositionAndOrientation(boxId)
-    numJoints = p.getNumJoints(boxId)
-    print(cubePos)
-    print(cubeOrn)
-    print(numJoints)
-    print(" ")
-    time.sleep(1./240.)
-
-p.disconnect()
+robot = RobotController()
+robot.createWorld(view_world=True)
