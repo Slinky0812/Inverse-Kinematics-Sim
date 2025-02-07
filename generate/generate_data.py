@@ -1,7 +1,7 @@
 import pybullet as p
 import numpy as np
 
-def generate_ik_dataset(robot, num_samples):    
+def generateIKDataset(robot, num_samples):    
     # Get joint limits from URDF
     jointLimits = []
     for joint in robot.controllable_joints:
@@ -29,5 +29,34 @@ def generate_ik_dataset(robot, num_samples):
         eePose = robot.solveForwardPositonKinematics(angles)
         endEffectorPoses.append(eePose)
         jointAngles.append(angles)
+
+    # process end effector poses
+    processedEndEffectorPoses = processEndEffectorPoses(endEffectorPoses)
     
-    return np.array(endEffectorPoses), np.array(jointAngles)
+    return np.array(processedEndEffectorPoses), np.array(jointAngles)
+
+
+def processEndEffectorPoses(endEffectorPoses):
+    # if 6 values in pose, then it is a single pose
+    if len(endEffectorPoses) == 6:
+        x, y, z, roll, pitch, yaw = endEffectorPoses
+        X_processed = [
+            x, y, z,
+            np.sin(roll), np.cos(roll),  # Replace roll with sin(roll), cos(roll)
+            np.sin(pitch), np.cos(pitch),  # Same for pitch/yaw
+            np.sin(yaw), np.cos(yaw)
+        ]
+    else:
+        X_processed = []
+        for pose in endEffectorPoses:
+            x, y, z, roll, pitch, yaw = pose
+            features = [
+                x, y, z,
+                np.sin(roll), np.cos(roll),  # Replace roll with sin(roll), cos(roll)
+                np.sin(pitch), np.cos(pitch),  # Same for pitch/yaw
+                np.sin(yaw), np.cos(yaw)
+            ]
+            X_processed.append(features)
+        X_processed = np.array(X_processed)
+
+    return X_processed
