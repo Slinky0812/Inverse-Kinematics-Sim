@@ -1,22 +1,17 @@
-# k-Nearest Neighbors model
-from sklearn.neighbors import KNeighborsRegressor
+# Linear Regression model
+from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 from generate.generate_data import processEndEffectorPoses
 
 
-def kNN(X_train, y_train, X_test, y_test, robot):
+def linearRegression(X_train, y_train, X_test, y_test, robot):
     # train the model
-    knn = KNeighborsRegressor(
-        n_neighbors=5,  # Start with 5 neighbors
-        weights='uniform',  # All neighbors contribute equally
-        metric='euclidean'  # Standard distance metric
-    )
-
-    knn.fit(X_train, y_train)
+    lr = LinearRegression()
+    lr.fit(X_train, y_train)
 
     # test the model
-    y_pred = knn.predict(X_test)
+    y_pred = lr.predict(X_test)
     mse = mean_squared_error(y_test, y_pred)
     mae = mean_absolute_error(y_test, y_pred)
     print(f"MSE: {mse:.4f}, MAE: {mae:.4f}")
@@ -31,3 +26,4 @@ def kNN(X_train, y_train, X_test, y_test, robot):
         pose_errors.append(error)
 
     return pose_errors
+

@@ -9,6 +9,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from pybullet_controller import RobotController
 from generate.generate_data import generateIKDataset
 from models.kNN import kNN
+from models.linear_regression import linearRegression
 from results.plot import plot_error_distribution
 
 def main():
@@ -47,10 +48,17 @@ def main():
     #     print(f"y test: {y_test[i]}")
     #     print("")
 
+    print("")
     # train the model using k-Nearest Neighbors
     kNNErrors = kNN(XTrainScaled, yTrain, XTestScaled, yTest, robot)
     for i in range(len(kNNErrors)):
         print(kNNErrors[i])
+        print("")
+
+    # train the model using Linear Regression
+    lRErrors = linearRegression(XTrainScaled, yTrain, XTestScaled, yTest, robot)
+    for i in range(len(lRErrors)):
+        print(lRErrors[i])
         print("")
 
     # plot the errors
