@@ -4,13 +4,14 @@ import pybullet_data
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.neighbors import KNeighborsClassifier
 
 from pybullet_controller import RobotController
 from generate.generate_data import generateIKDataset
+from results.plot import plot_error_distribution
+
 from models.kNN import kNN
 from models.linear_regression import linearRegression
-from results.plot import plot_error_distribution
+from models.neural_networks import neuralNetwork
 
 def main():
     # Create instance of robot controller
@@ -20,7 +21,7 @@ def main():
     # Generate data set
     # X = the end effector pose
     # y = the joint angles
-    X, y = generateIKDataset(robot, num_samples=10)
+    X, y = generateIKDataset(robot, num_samples=100)
 
     # print("")
     # for i in range(len(X)):
@@ -36,6 +37,9 @@ def main():
     XTrainScaled = scaler.fit_transform(XTrain)
     XTestScaled = scaler.transform(XTest)
 
+    yTrainScaled = scaler.fit_transform(yTrain)
+    yTestScaled = scaler.transform(yTest)
+
     # print("")
     # for i in range(len(X_train_scaled)):
     #     print(f"X train: {X_train_scaled[i]}")
@@ -49,20 +53,31 @@ def main():
     #     print("")
 
     print("")
+    print("kNN")
     # train the model using k-Nearest Neighbors
-    kNNErrors = kNN(XTrainScaled, yTrain, XTestScaled, yTest, robot)
+    kNNErrors = kNN(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
     for i in range(len(kNNErrors)):
+        print("")
         print(kNNErrors[i])
-        print("")
-
+    
+    print("")
+    print("Linear Regression")
     # train the model using Linear Regression
-    lRErrors = linearRegression(XTrainScaled, yTrain, XTestScaled, yTest, robot)
+    lRErrors = linearRegression(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
     for i in range(len(lRErrors)):
-        print(lRErrors[i])
         print("")
+        print(lRErrors[i])
+
+    print("")
+    print("Neural Networks")
+    # train the model using Neural Networks
+    nNErrors = neuralNetwork(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
+    for i in range(len(nNErrors)):
+        print("")
+        print(nNErrors[i])
 
     # plot the errors
-    plot_error_distribution(kNNErrors)
+    # plot_error_distribution(kNNErrors)
 
 
 if __name__ == "__main__":

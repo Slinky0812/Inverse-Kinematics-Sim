@@ -1,5 +1,6 @@
 import pybullet as p
 import numpy as np
+from numpy.linalg import norm
 
 def generateIKDataset(robot, num_samples):    
     # Get joint limits from URDF
@@ -60,3 +61,19 @@ def processEndEffectorPoses(endEffectorPoses):
         X_processed = np.array(X_processed)
 
     return X_processed
+
+
+def calculatePoseErrors(yPred, XTest, robot):
+    poseErrors = []
+    for anglesPred, targetPose in zip(yPred, XTest):
+        # Compute achieved pose via forward kinematics
+        achievedPose = robot.solveForwardPositonKinematics(anglesPred)
+        # Calculate position/orientation error
+        achievedPoseProcessed = processEndEffectorPoses(achievedPose)
+        # error = achieved_poseProcessed - target_pose
+        # pose_errors.append(error)
+        positionError = norm(achievedPoseProcessed[:3] - targetPose[:3]) # Euclidean distance
+        orientationError = norm(achievedPoseProcessed[3:] - targetPose[3:]) # Quaternion distance
+        poseErrors.append([positionError, orientationError])
+
+    return poseErrors
