@@ -25,4 +25,4 @@ def neuralNetwork(XTrain, yTrain, XTest, yTest, robot, scaler):
 
     # Calculate pose errors
     poseErrors = calculatePoseErrors(yPred, XTest, robot)
-    return poseErrors
+    return poseErrors, mse, mae
