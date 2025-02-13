@@ -76,9 +76,18 @@ def main():
         print("")
         print(nNErrors[i])
 
+    print("")
+    print("Decision Trees")
+    # train the model using Neural Networks
+    dTErrors, dTmse, dTmae = neuralNetwork(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
+    for i in range(len(dTErrors)):
+        print("")
+        print(dTErrors[i])
+
+
     # plot the errors
     # plot_error_distribution(kNNErrors)
-    plotData(kNNErrors, lRErrors, nNErrors)
+    plotData(kNNErrors, lRErrors, nNErrors, dTErrors)
 
 
 if __name__ == "__main__":
