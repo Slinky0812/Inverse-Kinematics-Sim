@@ -23,8 +23,6 @@ def plotData(kNNErrors, lRErrors, nNErrors, dTErrors):
     positionErrorsPlot(kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors, labels)
     orientationErrorsPlot(kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors, labels)
 
-    plt.show()
-
 
 def positionErrorsPlot(kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors, labels):
     # Prepare data for Seaborn
@@ -42,6 +40,8 @@ def positionErrorsPlot(kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors, labe
     plt.title("Position Error Comparison (Violin Plot)")
     plt.grid(True, linestyle="--", alpha=0.6)
 
+    plt.savefig("results/position_error_comparison.png")
+
 
 def orientationErrorsPlot(kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors, labels):
     # Prepare data for Seaborn
@@ -58,3 +58,5 @@ def orientationErrorsPlot(kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors, l
 
     plt.title("Orientation Error Comparison (Violin Plot)")
     plt.grid(True, linestyle="--", alpha=0.6)
+
+    plt.savefig("results/orientation_error_comparison.png")
