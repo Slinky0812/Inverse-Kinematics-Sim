@@ -12,6 +12,7 @@ from results.plot import plotData
 from models.kNN import kNN
 from models.linear_regression import linearRegression
 from models.neural_networks import neuralNetwork
+from models.svr import supportVectorRegression
 
 def main():
     # Create instance of robot controller
@@ -85,15 +86,24 @@ def main():
         print(dTErrors[i])
 
 
+    print("")
+    print("Support Vector Regression")
+    # train the model using Support Vector Regression
+    sVRErrors, sVRmse, sVRmae, sVRTrainingTime, sVRTestingTime = supportVectorRegression(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
+    for i in range(len(sVRErrors)):
+        print("")
+        print(sVRErrors[i])
+
     # plot the errors
     # plot_error_distribution(kNNErrors)
-    plotData(kNNErrors, lRErrors, nNErrors, dTErrors)
+    plotData(kNNErrors, lRErrors, nNErrors, dTErrors, sVRErrors)
 
     print("Training times:")
     print(f"kNN: {kNNTrainingTime:.4f} seconds")
     print(f"Linear Regression: {lRTrainingTime:.4f} seconds")
     print(f"Neural Networks: {nNTrainingTime:.4f} seconds")
     print(f"Decision Trees: {dTTrainingTime:.4f} seconds")
+    print(f"Support Vector Regression: {sVRTrainingTime:.4f} seconds")
     print("")
 
     print("Testing times:")
@@ -101,6 +111,8 @@ def main():
     print(f"Linear Regression: {lRTestingTime:.4f} seconds")
     print(f"Neural Networks: {nNTestingTime:.4f} seconds")
     print(f"Decision Trees: {dTTestingTime:.4f} seconds")
+    print(f"Support Vector Regression: {sVRTestingTime:.4f} seconds")
+
 
 
 if __name__ == "__main__":
