@@ -1,27 +1,31 @@
-# Support Vector Regression model
-from sklearn.svm import SVR
+# Gradient Boosting Model
+from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.multioutput import MultiOutputRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 import time
-import numpy as np
 
 from generate.generate_data import calculatePoseErrors
 
 
-def supportVectorRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
-    svr = SVR(kernel='rbf')
-    multiSVR = MultiOutputRegressor(svr)
+def gradientBoosting(XTrain, yTrain, XTest, yTest, robot, scaler):
+    gb = GradientBoostingRegressor(
+        n_estimators=100,   # Number of boosting stages
+        learning_rate=0.1,  # Step size shrinkage (trade-off between speed & accuracy)
+        max_depth=3,        # Depth of each tree (controls complexity)
+        random_state=42
+    )
+    multiGB = MultiOutputRegressor(gb)
 
     # Train the model
     startTrain = time.time()
-    multiSVR.fit(XTrain, yTrain)
+    multiGB.fit(XTrain, yTrain)
     endTrain = time.time()
     trainingTime = endTrain - startTrain
 
     # Test the model
     startTest = time.time()
-    yPred = scaler.inverse_transform(multiSVR.predict(XTest))
+    yPred = scaler.inverse_transform(multiGB.predict(XTest))
     endTest = time.time()
     testingTime = endTest - startTest
     
@@ -32,4 +36,3 @@ def supportVectorRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     # Calculate pose errors
     poseErrors = calculatePoseErrors(yPred, XTest, robot)
     return poseErrors, mse, mae, trainingTime, testingTime
-

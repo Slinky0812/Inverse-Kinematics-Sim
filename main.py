@@ -11,6 +11,7 @@ from models.neural_networks import neuralNetwork
 from models.decision_trees import decisionTree
 from models.svr import supportVectorRegression
 from models.random_forest import randomForest
+from models.gradient_boosting import gradientBoosting
 
 def main():
     # Create instance of robot controller
@@ -21,12 +22,6 @@ def main():
     # X = the end effector pose
     # y = the joint angles
     X, y = generateIKDataset(robot, num_samples=1000)
-
-    # print("")
-    # for i in range(len(X)):
-    #     print(f"X: {X[i]}")
-    #     print(f"y: {y[i]}")
-    #     print("")
 
     # Split data into training and testing sets (80% training, 20% testing)
     XTrain, XTest, yTrain, yTest = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -39,18 +34,7 @@ def main():
     yTrainScaled = scaler.fit_transform(yTrain)
     yTestScaled = scaler.transform(yTest)
 
-    # print("")
-    # for i in range(len(X_train_scaled)):
-    #     print(f"X train: {X_train_scaled[i]}")
-    #     print(f"y train: {y_train[i]}")
-    #     print("")
-
-    # print("")
-    # for i in range(len(X_test_scaled)):
-    #     print(f"X test: {X_test_scaled[i]}")
-    #     print(f"y test: {y_test[i]}")
-    #     print("")
-
+    # lists to keep track of errors, timings, mae and mse values
     errors = []
     mseValues = []
     maeValues = []
@@ -66,9 +50,6 @@ def main():
     maeValues.append(kNNmae)
     trainingTimes.append(kNNTrainingTime)
     testingTimes.append(kNNTestingTime)
-    # for i in range(len(kNNErrors)):
-    #     print("")
-    #     print(kNNErrors[i])
     
     print("")
     print("Linear Regression")
@@ -79,10 +60,7 @@ def main():
     maeValues.append(lRmae)
     trainingTimes.append(lRTrainingTime)
     testingTimes.append(lRTestingTime)
-    # for i in range(len(lRErrors)):
-    #     print("")
-    #     print(lRErrors[i])
-
+    
     print("")
     print("Neural Networks")
     # train the model using Neural Networks
@@ -92,10 +70,7 @@ def main():
     maeValues.append(nNmae)
     trainingTimes.append(nNTrainingTime)
     testingTimes.append(nNTestingTime)
-    # for i in range(len(nNErrors)):
-    #     print("")
-    #     print(nNErrors[i])
-
+    
     print("")
     print("Decision Trees")
     # train the model using Neural Networks
@@ -105,10 +80,6 @@ def main():
     maeValues.append(dTmae)
     trainingTimes.append(dTTrainingTime)
     testingTimes.append(dTTestingTime)
-    # for i in range(len(dTErrors)):
-    #     print("")
-    #     print(dTErrors[i])
-
 
     print("")
     print("Support Vector Regression")
@@ -119,59 +90,32 @@ def main():
     maeValues.append(sVRmae)
     trainingTimes.append(sVRTrainingTime)
     testingTimes.append(sVRTestingTime)
-    # for i in range(len(sVRErrors)):
-    #     print("")
-    #     print(sVRErrors[i])
 
     print("")
     print("Random Forest")
-    # train the model using Support Vector Regression
-    rFErrors, rFmse, rFmae, rFTrainingTime, rFTestingTime = supportVectorRegression(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
+    # train the model using Random Forest
+    rFErrors, rFmse, rFmae, rFTrainingTime, rFTestingTime = randomForest(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
     errors.append(rFErrors)
     mseValues.append(rFmse)
     maeValues.append(rFmae)
     trainingTimes.append(rFTrainingTime)
     testingTimes.append(rFTestingTime)
 
+    print("")
+    print("Gradient Boosting")
+    # train the model using Gradient Boosting
+    gBErrors, gBmse, gBmae, gBTrainingTime, gBTestingTime = gradientBoosting(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
+    errors.append(gBErrors)
+    mseValues.append(gBmse)
+    maeValues.append(gBmae)
+    trainingTimes.append(gBTrainingTime)
+    testingTimes.append(gBTestingTime)
 
     # plot the results
     plotErrorData(errors)
     plotMSEData(mseValues)
     plotMAEData(maeValues)
     plotTimings(trainingTimes, testingTimes)
-
-    print("Training times:")
-    print(f"kNN: {kNNTrainingTime:.4f} seconds")
-    print(f"Linear Regression: {lRTrainingTime:.4f} seconds")
-    print(f"Neural Networks: {nNTrainingTime:.4f} seconds")
-    print(f"Decision Trees: {dTTrainingTime:.4f} seconds")
-    print(f"Support Vector Regression: {sVRTrainingTime:.4f} seconds")
-    print("")
-
-    print("Testing times:")
-    print(f"kNN: {kNNTestingTime:.4f} seconds")
-    print(f"Linear Regression: {lRTestingTime:.4f} seconds")
-    print(f"Neural Networks: {nNTestingTime:.4f} seconds")
-    print(f"Decision Trees: {dTTestingTime:.4f} seconds")
-    print(f"Support Vector Regression: {sVRTestingTime:.4f} seconds")
-    print("")
-
-    # print("MSE:")
-    # print(f"kNN: {kNNmse:.4f}")
-    # print(f"Linear Regression: {lRmse:.4f}")
-    # print(f"Neural Networks: {nNmse:.4f}")
-    # print(f"Decision Trees: {dTmse:.4f}")
-    # print(f"Support Vector Regression: {sVRmse:.4f}")
-    # print("")
-
-    # print("MAE:")
-    # print(f"kNN: {kNNmae:.4f}")
-    # print(f"Linear Regression: {lRmae:.4f}")
-    # print(f"Neural Networks: {nNmae:.4f}")
-    # print(f"Decision Trees: {dTmae:.4f}")
-    # print(f"Support Vector Regression: {sVRmae:.4f}")
-    # print("")
-
 
 
 if __name__ == "__main__":
