@@ -4,13 +4,14 @@ import seaborn as sns
 import pandas as pd
 
 
-def plotErrorData(kNNErrors, lRErrors, nNErrors, dTErrors, sVRErrors):
+def plotErrorData(errors):
     # Convert to NumPy arrays
-    kNNErrors = np.array(kNNErrors)
-    lRErrors = np.array(lRErrors)
-    nNErrors = np.array(nNErrors)
-    dTErrors = np.array(dTErrors)
-    sVRErrors = np.array(sVRErrors)
+    kNNErrors = np.array(errors[0])
+    lRErrors = np.array(errors[1])
+    nNErrors = np.array(errors[2])
+    dTErrors = np.array(errors[3])
+    sVRErrors = np.array(errors[4])
+    rFErrors = np.array(errors[5])
 
     # Separate position and orientation errors
     kNNPosErrors, kNNOriErrors = kNNErrors[:, 0], kNNErrors[:, 1]
@@ -18,17 +19,23 @@ def plotErrorData(kNNErrors, lRErrors, nNErrors, dTErrors, sVRErrors):
     nNPosErrors, nNOriErrors = nNErrors[:, 0], nNErrors[:, 1]
     dTPosErrors, dTOriErrors = dTErrors[:, 0], dTErrors[:, 1]
     sVRPosErrors, sVROriErrors = sVRErrors[:, 0], sVRErrors[:, 1]
+    rFPosErrors, rFOriErrors = rFErrors[:, 0], rFErrors[:, 1]
 
     # Plot position errors
-    positionErrorsPlot(kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors, sVRPosErrors)
-    orientationErrorsPlot(kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors, sVROriErrors)
+    positionErrorsPlot(kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors, sVRPosErrors, rFPosErrors)
+    orientationErrorsPlot(kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors, sVROriErrors, rFOriErrors)
 
 
-def positionErrorsPlot(kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors, sVRPosErrors):
+def positionErrorsPlot(kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors, sVRPosErrors, rFPosErrors):
     # Prepare data for Seaborn
     data = {
-        "Model": ["k-NN"] * len(kNNPosErrors) + ["Linear Regression"] * len(lRPosErrors) + ["Neural Network"] * len(nNPosErrors) + ["Decision Trees"] * len(dTPosErrors) + ["SVR"] * len(sVRPosErrors),
-        "Position Error": np.concatenate([kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors, sVRPosErrors])
+        "Model": ["k-NN"] * len(kNNPosErrors) + 
+                ["Linear Regression"] * len(lRPosErrors) + 
+                ["Neural Network"] * len(nNPosErrors) + 
+                ["Decision Trees"] * len(dTPosErrors) + 
+                ["SVR"] * len(sVRPosErrors) + 
+                ["Random Forest"] * len(rFPosErrors),
+        "Position Error": np.concatenate([kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors, sVRPosErrors, rFPosErrors])
     }
 
     df = pd.DataFrame(data)
@@ -43,11 +50,16 @@ def positionErrorsPlot(kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors, sVRP
     plt.savefig("results/position_error_comparison.png")
 
 
-def orientationErrorsPlot(kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors, sVROriErrors):
+def orientationErrorsPlot(kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors, sVROriErrors, rFOriErrors):
     # Prepare data for Seaborn
     data = {
-        "Model": ["k-NN"] * len(kNNOriErrors) + ["Linear Regression"] * len(lROriErrors) + ["Neural Network"] * len(nNOriErrors) + ["Decision Trees"] * len(dTOriErrors) + ["SVR"] * len(sVROriErrors),
-        "Orientation Error": np.concatenate([kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors, sVROriErrors])
+        "Model": ["k-NN"] * len(kNNOriErrors) + 
+                ["Linear Regression"] * len(lROriErrors) + 
+                ["Neural Network"] * len(nNOriErrors) + 
+                ["Decision Trees"] * len(dTOriErrors) + 
+                ["SVR"] * len(sVROriErrors) + 
+                ["Random Forest"] * len(rFOriErrors),
+        "Orientation Error": np.concatenate([kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors, sVROriErrors, rFOriErrors])
     }
 
     df = pd.DataFrame(data)
@@ -64,7 +76,7 @@ def orientationErrorsPlot(kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors, s
 
 def plotMSEData(mseValues):
     plt.figure(figsize=(10, 6))
-    models = ["k-NN", "Linear Regression", "Neural Network", "Decision Trees", "SVR"]
+    models = ["k-NN", "Linear Regression", "Neural Network", "Decision Trees", "SVR", "Random Forest"]
     plt.bar(models, mseValues)
     plt.xlabel("Models")
     plt.ylabel("Mean Squared Error")
@@ -76,7 +88,7 @@ def plotMSEData(mseValues):
 def plotMAEData(maeValues):
     plt.figure(figsize=(10, 6))
     
-    models = ["k-NN", "Linear Regression", "Neural Network", "Decision Trees", "SVR"]
+    models = ["k-NN", "Linear Regression", "Neural Network", "Decision Trees", "SVR", "Random Forest"]
     
     plt.bar(models, maeValues)
     
@@ -90,7 +102,7 @@ def plotMAEData(maeValues):
 def plotTimings(trainingTimes, testingTimes):
     plt.figure(figsize=(10, 6))
 
-    models = ["k-NN", "Linear Regression", "Neural Network", "Decision Trees", "SVR"]
+    models = ["k-NN", "Linear Regression", "Neural Network", "Decision Trees", "SVR", "Random Forest"]
     
     x = np.arange(len(models))  # X-axis positions
 

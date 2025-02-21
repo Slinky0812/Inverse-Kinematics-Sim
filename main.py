@@ -1,7 +1,3 @@
-import pybullet as p
-import time
-import pybullet_data
-
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
@@ -12,7 +8,9 @@ from results.plot import plotErrorData, plotMSEData, plotMAEData, plotTimings
 from models.kNN import kNN
 from models.linear_regression import linearRegression
 from models.neural_networks import neuralNetwork
+from models.decision_trees import decisionTree
 from models.svr import supportVectorRegression
+from models.random_forest import randomForest
 
 def main():
     # Create instance of robot controller
@@ -53,6 +51,7 @@ def main():
     #     print(f"y test: {y_test[i]}")
     #     print("")
 
+    errors = []
     mseValues = []
     maeValues = []
     trainingTimes = []
@@ -62,6 +61,7 @@ def main():
     print("kNN")
     # train the model using k-Nearest Neighbors
     kNNErrors, kNNmse, kNNmae, kNNTrainingTime, kNNTestingTime = kNN(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
+    errors.append(kNNErrors)
     mseValues.append(kNNmse)
     maeValues.append(kNNmae)
     trainingTimes.append(kNNTrainingTime)
@@ -74,6 +74,7 @@ def main():
     print("Linear Regression")
     # train the model using Linear Regression
     lRErrors, lRmse, lRmae, lRTrainingTime, lRTestingTime = linearRegression(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
+    errors.append(lRErrors)
     mseValues.append(lRmse)
     maeValues.append(lRmae)
     trainingTimes.append(lRTrainingTime)
@@ -86,6 +87,7 @@ def main():
     print("Neural Networks")
     # train the model using Neural Networks
     nNErrors, nNmse, nNmae, nNTrainingTime, nNTestingTime = neuralNetwork(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
+    errors.append(nNErrors)
     mseValues.append(nNmse)
     maeValues.append(nNmae)
     trainingTimes.append(nNTrainingTime)
@@ -97,7 +99,8 @@ def main():
     print("")
     print("Decision Trees")
     # train the model using Neural Networks
-    dTErrors, dTmse, dTmae, dTTrainingTime, dTTestingTime = neuralNetwork(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
+    dTErrors, dTmse, dTmae, dTTrainingTime, dTTestingTime = decisionTree(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
+    errors.append(dTErrors)
     mseValues.append(dTmse)
     maeValues.append(dTmae)
     trainingTimes.append(dTTrainingTime)
@@ -111,6 +114,7 @@ def main():
     print("Support Vector Regression")
     # train the model using Support Vector Regression
     sVRErrors, sVRmse, sVRmae, sVRTrainingTime, sVRTestingTime = supportVectorRegression(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
+    errors.append(sVRErrors)
     mseValues.append(sVRmse)
     maeValues.append(sVRmae)
     trainingTimes.append(sVRTrainingTime)
@@ -119,9 +123,19 @@ def main():
     #     print("")
     #     print(sVRErrors[i])
 
-    # plot the errors
-    plotErrorData(kNNErrors, lRErrors, nNErrors, dTErrors, sVRErrors)
+    print("")
+    print("Random Forest")
+    # train the model using Support Vector Regression
+    rFErrors, rFmse, rFmae, rFTrainingTime, rFTestingTime = supportVectorRegression(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
+    errors.append(rFErrors)
+    mseValues.append(rFmse)
+    maeValues.append(rFmae)
+    trainingTimes.append(rFTrainingTime)
+    testingTimes.append(rFTestingTime)
 
+
+    # plot the results
+    plotErrorData(errors)
     plotMSEData(mseValues)
     plotMAEData(maeValues)
     plotTimings(trainingTimes, testingTimes)
