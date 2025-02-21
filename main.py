@@ -12,6 +12,8 @@ from models.decision_trees import decisionTree
 from models.svr import supportVectorRegression
 from models.random_forest import randomForest
 from models.gradient_boosting import gradientBoosting
+from models.gaussian_regression import gaussianProcessRegression
+
 
 def main():
     # Create instance of robot controller
@@ -110,6 +112,16 @@ def main():
     maeValues.append(gBmae)
     trainingTimes.append(gBTrainingTime)
     testingTimes.append(gBTestingTime)
+
+    print("")
+    print("Gaussian Process Regression")
+    # train the model using Polynomial Regression
+    gRErrors, gRmse, gRmae, gRTrainingTime, gRTestingTime = gaussianProcessRegression(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
+    errors.append(gRErrors)
+    mseValues.append(gRmse)
+    maeValues.append(gRmae)
+    trainingTimes.append(gRTrainingTime)
+    testingTimes.append(gRTestingTime)
 
     # plot the results
     plotErrorData(errors)
