@@ -3,9 +3,7 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
-import time
-
-from generate.generate_data import calculatePoseErrors
+from generate.generate_data import calculatePoseErrors, trainModel, testModel
 
 
 def kNN(XTrain, yTrain, XTest, yTest, robot, scaler):
@@ -25,17 +23,12 @@ def kNN(XTrain, yTrain, XTest, yTest, robot, scaler):
         n_neighbors=best_k,  # Start with 5 neighbors
     )
 
-    # Train the model
-    startTrain = time.time()
-    bestKNN.fit(XTrain, yTrain)
-    endTrain = time.time()
-    trainingTime = endTrain - startTrain
+   # Train the model
+    bestKNN, trainingTime = trainModel(XTrain, yTrain, bestKNN)
 
     # Test the model
-    startTest = time.time()
-    yPred = scaler.inverse_transform(bestKNN.predict(XTest))
-    endTest = time.time()
-    testingTime = endTest - startTest
+    yPred, testingTime = testModel(XTest, yTest, bestKNN, scaler)
+
     
     mse = mean_squared_error(yTest, yPred)
     mae = mean_absolute_error(yTest, yPred)

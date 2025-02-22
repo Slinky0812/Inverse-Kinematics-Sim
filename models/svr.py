@@ -3,10 +3,7 @@ from sklearn.svm import SVR
 from sklearn.multioutput import MultiOutputRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
-import time
-import numpy as np
-
-from generate.generate_data import calculatePoseErrors
+from generate.generate_data import calculatePoseErrors, trainModel, testModel
 
 
 def supportVectorRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
@@ -14,17 +11,10 @@ def supportVectorRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     multiSVR = MultiOutputRegressor(svr)
 
     # Train the model
-    startTrain = time.time()
-    multiSVR.fit(XTrain, yTrain)
-    endTrain = time.time()
-    trainingTime = endTrain - startTrain
+    multiSVR, trainingTime = trainModel(XTrain, yTrain, multiSVR)
 
     # Test the model
-    startTest = time.time()
-    yPred = scaler.inverse_transform(multiSVR.predict(XTest))
-    endTest = time.time()
-    testingTime = endTest - startTest
-    
+    yPred, testingTime = testModel(XTest, yTest, multiSVR, scaler)
     mse = mean_squared_error(yTest, yPred)
     mae = mean_absolute_error(yTest, yPred)
     print(f"MSE: {mse:.4f}, MAE: {mae:.4f}")

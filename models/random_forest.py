@@ -2,26 +2,18 @@
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
-import time
-
-from generate.generate_data import calculatePoseErrors
+from generate.generate_data import calculatePoseErrors, trainModel, testModel
 
 
 def randomForest(XTrain, yTrain, XTest, yTest, robot, scaler):
     rf = RandomForestRegressor(n_estimators=10, random_state=0, oob_score=True)
 
-    # Train the model
-    startTrain = time.time()
-    rf.fit(XTrain, yTrain)
-    endTrain = time.time()
-    trainingTime = endTrain - startTrain
+      # Train the model
+    rf, trainingTime = trainModel(XTrain, yTrain, rf)
 
     # Test the model
-    startTest = time.time()
-    yPred = scaler.inverse_transform(rf.predict(XTest))
-    endTest = time.time()
-    testingTime = endTest - startTest
-    
+    yPred, testingTime = testModel(XTest, yTest, rf, scaler)
+
     mse = mean_squared_error(yTest, yPred)
     mae = mean_absolute_error(yTest, yPred)
     print(f"MSE: {mse:.4f}, MAE: {mae:.4f}")

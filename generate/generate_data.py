@@ -1,6 +1,7 @@
 import pybullet as p
 import numpy as np
 from numpy.linalg import norm
+import time
 
 def generateIKDataset(robot, num_samples):    
     # Get joint limits from URDF
@@ -77,3 +78,21 @@ def calculatePoseErrors(yPred, XTest, robot):
         poseErrors.append([positionError, orientationError])
 
     return poseErrors
+
+
+def trainModel(XTrain, yTrain, model):
+    startTrain = time.time()
+    model.fit(XTrain, yTrain)
+    endTrain = time.time()
+    trainingTime = endTrain - startTrain
+
+    return model, trainingTime
+
+
+def testModel(XTest, yTest, model, scaler):
+    startTest = time.time()
+    yPred = scaler.inverse_transform(model.predict(XTest))
+    endTest = time.time()
+    testingTime = endTest - startTest
+
+    return yPred, testingTime

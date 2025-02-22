@@ -3,9 +3,7 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.multioutput import MultiOutputRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
-import time
-
-from generate.generate_data import calculatePoseErrors
+from generate.generate_data import calculatePoseErrors, trainModel, testModel
 
 
 def gradientBoosting(XTrain, yTrain, XTest, yTest, robot, scaler):
@@ -17,18 +15,12 @@ def gradientBoosting(XTrain, yTrain, XTest, yTest, robot, scaler):
     )
     multiGB = MultiOutputRegressor(gb)
 
-    # Train the model
-    startTrain = time.time()
-    multiGB.fit(XTrain, yTrain)
-    endTrain = time.time()
-    trainingTime = endTrain - startTrain
+   # Train the model
+    multiGB, trainingTime = trainModel(XTrain, yTrain, multiGB)
 
     # Test the model
-    startTest = time.time()
-    yPred = scaler.inverse_transform(multiGB.predict(XTest))
-    endTest = time.time()
-    testingTime = endTest - startTest
-    
+    yPred, testingTime = testModel(XTest, yTest, multiGB, scaler)
+
     mse = mean_squared_error(yTest, yPred)
     mae = mean_absolute_error(yTest, yPred)
     print(f"MSE: {mse:.4f}, MAE: {mae:.4f}")
