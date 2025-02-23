@@ -25,7 +25,7 @@ def main():
     # Generate data set
     # X = the end effector pose
     # y = the joint angles
-    X, y = generateIKDataset(robot, num_samples=1000)
+    X, y = generateIKDataset(robot, numSamples=1000)
 
     # Split data into training and testing sets (80% training, 20% testing)
     XTrain, XTest, yTrain, yTest = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -168,7 +168,7 @@ def main():
     testingTimes.append(kRRTestingTime)
 
     # plot the results
-    plotErrorData(errors)
+    plotErrorData(errors, models)
     plotMSEData(mseValues, models)
     plotMAEData(maeValues, models)
     plotTimings(trainingTimes, testingTimes, models)

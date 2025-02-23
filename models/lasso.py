@@ -16,7 +16,7 @@ def lassoRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     lasso, trainingTime = trainModel(XTrain, yTrain, lasso)
 
     # Test the model
-    yPred, testingTime = testModel(XTest, yTest, lasso, scaler)
+    yPred, testingTime = testModel(XTest, lasso, scaler)
     
     mse = mean_squared_error(yTest, yPred)
     mae = mean_absolute_error(yTest, yPred)

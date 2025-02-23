@@ -17,7 +17,7 @@ def kernelRidgeRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     kr, trainingTime = trainModel(XTrain, yTrain, kr)
 
     # Test the model
-    yPred, testingTime = testModel(XTest, yTest, kr, scaler)
+    yPred, testingTime = testModel(XTest, kr, scaler)
     
     mse = mean_squared_error(yTest, yPred)
     mae = mean_absolute_error(yTest, yPred)

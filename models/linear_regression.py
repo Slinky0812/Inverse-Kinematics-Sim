@@ -14,7 +14,7 @@ def linearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     lr, trainingTime = trainModel(XTrain, yTrain, lr)
 
     # Test the model
-    yPred, testingTime = testModel(XTest, yTest, lr, scaler)
+    yPred, testingTime = testModel(XTest, lr, scaler)
     
     mse = mean_squared_error(yTest, yPred)
     mae = mean_absolute_error(yTest, yPred)
@@ -33,7 +33,7 @@ def bayesianLinearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     multiBR, trainingTime = trainModel(XTrain, yTrain, multiBR)
 
     # Test the model
-    yPred, testingTime = testModel(XTest, yTest, multiBR, scaler)
+    yPred, testingTime = testModel(XTest, multiBR, scaler)
     
     mse = mean_squared_error(yTest, yPred)
     mae = mean_absolute_error(yTest, yPred)

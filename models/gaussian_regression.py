@@ -16,7 +16,7 @@ def gaussianProcessRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     gp, trainingTime = trainModel(XTrain, yTrain, gp)
 
     # Test the model
-    yPred, testingTime = testModel(XTest, yTest, gp, scaler)
+    yPred, testingTime = testModel(XTest, gp, scaler)
     
     mse = mean_squared_error(yTest, yPred)
     mae = mean_absolute_error(yTest, yPred)

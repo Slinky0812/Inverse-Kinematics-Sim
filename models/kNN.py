@@ -27,7 +27,7 @@ def kNN(XTrain, yTrain, XTest, yTest, robot, scaler):
     bestKNN, trainingTime = trainModel(XTrain, yTrain, bestKNN)
 
     # Test the model
-    yPred, testingTime = testModel(XTest, yTest, bestKNN, scaler)
+    yPred, testingTime = testModel(XTest, bestKNN, scaler)
 
     
     mse = mean_squared_error(yTest, yPred)

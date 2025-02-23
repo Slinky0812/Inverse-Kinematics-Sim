@@ -12,7 +12,7 @@ def randomForest(XTrain, yTrain, XTest, yTest, robot, scaler):
     rf, trainingTime = trainModel(XTrain, yTrain, rf)
 
     # Test the model
-    yPred, testingTime = testModel(XTest, yTest, rf, scaler)
+    yPred, testingTime = testModel(XTest, rf, scaler)
 
     mse = mean_squared_error(yTest, yPred)
     mae = mean_absolute_error(yTest, yPred)

@@ -4,7 +4,7 @@ import seaborn as sns
 import pandas as pd
 
 
-def plotErrorData(errors):
+def plotErrorData(errors, models):
     # Convert to NumPy arrays
     kNNErrors = np.array(errors[0])
     lRErrors = np.array(errors[1])
@@ -30,31 +30,39 @@ def plotErrorData(errors):
     bRPosErrors, bROriErrors = bRErrors[:, 0], bRErrors[:, 1]
     lassoPosErrors, lassoOriErrors = lassoErrors[:, 0], lassoErrors[:, 1]
     kRRPosErrors, kRROriErrors = kRRErrors[:, 0], kRRErrors[:, 1]
+
+
+    # Create lists of all error arrays
+    modelPosErrors = [
+        kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors,
+        sVRPosErrors, rFPosErrors, gBPosErrors, gRPosErrors,
+        bRPosErrors, lassoPosErrors, kRRPosErrors
+    ]
     
+    modelOriErrors = [
+        kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors,
+        sVROriErrors, rFOriErrors, gBOriErrors, gROriErrors,
+        bROriErrors, lassoOriErrors, kRROriErrors
+    ]
 
     # Plot position errors
-    positionErrorsPlot(kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors, sVRPosErrors, rFPosErrors, gBPosErrors, gRPosErrors, bRPosErrors, lassoPosErrors, kRRPosErrors)
+    positionErrorsPlot(modelPosErrors, models)
     
     # Plot orientation errors
-    orientationErrorsPlot(kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors, sVROriErrors, rFOriErrors, gBOriErrors, gROriErrors, bROriErrors, lassoOriErrors, kRROriErrors)
+    orientationErrorsPlot(modelOriErrors, models)
 
 
-def positionErrorsPlot(kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors, sVRPosErrors, rFPosErrors, gBPosErrors, gRPosErrors, bRPosErrors, lassoPosErrors, kRRPosErrors):
+def positionErrorsPlot(modelPosErrors, models):
     # Prepare data for Seaborn
-    data = {
-        "Model": ["k-NN"] * len(kNNPosErrors) + 
-                ["Linear Regression"] * len(lRPosErrors) + 
-                ["Neural Network"] * len(nNPosErrors) + 
-                ["Decision Trees"] * len(dTPosErrors) + 
-                ["SVR"] * len(sVRPosErrors) + 
-                ["Random Forest"] * len(rFPosErrors) + 
-                ["Gradient Boosting"] * len(gBPosErrors) +
-                ["Gaussian Process Regression"] * len(gRPosErrors) + 
-                ["Bayesian Linear Regression"] * len(bRPosErrors) + 
-                ["Lasso Regression"] * len(lassoPosErrors) + 
-                ["Kernel Ridge Regression"] * len(kRRPosErrors),
-        "Position Error": np.concatenate([kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors, sVRPosErrors, rFPosErrors, gBPosErrors, gRPosErrors, bRPosErrors, lassoPosErrors, kRRPosErrors])
-    }
+
+    # Create lists of errors and corresponding model names
+    errors_flat = np.concatenate(modelPosErrors)
+    model_labels = np.repeat(models, [len(arr) for arr in modelPosErrors])
+    
+    df = pd.DataFrame({
+        "Model": model_labels,
+        "Position Error": errors_flat
+    })
 
     # print("")
     # print("Position Errors")
@@ -70,8 +78,6 @@ def positionErrorsPlot(kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors, sVRP
     # print(f"Kernel Ridge Regression - {kRRPosErrors[199]}")
     # print("")
     
-    df = pd.DataFrame(data)
-
     # Plot violin plot
     plt.figure(figsize=(25, 6))
     sns.violinplot(x="Model", y="Position Error", data=df)
@@ -82,22 +88,15 @@ def positionErrorsPlot(kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors, sVRP
     plt.savefig("results/position_error_comparison.png")
 
 
-def orientationErrorsPlot(kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors, sVROriErrors, rFOriErrors, gBOriErrors, gROriErrors, bROriErrors, lassoOriErrors, kRROriErrors):
+def orientationErrorsPlot(modelOriErrors, models):
     # Prepare data for Seaborn
-    data = {
-        "Model": ["k-NN"] * len(kNNOriErrors) + 
-                ["Linear Regression"] * len(lROriErrors) + 
-                ["Neural Network"] * len(nNOriErrors) + 
-                ["Decision Trees"] * len(dTOriErrors) + 
-                ["SVR"] * len(sVROriErrors) + 
-                ["Random Forest"] * len(rFOriErrors) + 
-                ["Gradient Boosting"] * len(gBOriErrors) + 
-                ["Gaussian Process Regression"] * len(gROriErrors) + 
-                ["Bayesian Linear Regression"] * len(bROriErrors) + 
-                ["Lasso Regression"] * len(lassoOriErrors) + 
-                ["Kernel Ridge Regression"] * len(kRROriErrors),
-        "Orientation Error": np.concatenate([kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors, sVROriErrors, rFOriErrors, gBOriErrors, gROriErrors, bROriErrors, lassoOriErrors, kRROriErrors])
-    }
+    errors_flat = np.concatenate(modelOriErrors)
+    model_labels = np.repeat(models, [len(arr) for arr in modelOriErrors])
+    
+    df = pd.DataFrame({
+        "Model": model_labels,
+        "Orientation Error": errors_flat
+    })
 
     # print("")
     # print("Orientation Errors")
@@ -112,8 +111,6 @@ def orientationErrorsPlot(kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors, s
     # print(f"Lasso Regression - {lassoOriErrors[199]}")
     # print(f"Kernel Ridge Regression - {kRROriErrors[199]}")
     # print("")
-
-    df = pd.DataFrame(data)
 
     # Plot violin plot
     plt.figure(figsize=(25, 6))

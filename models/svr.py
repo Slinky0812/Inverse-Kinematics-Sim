@@ -14,7 +14,7 @@ def supportVectorRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     multiSVR, trainingTime = trainModel(XTrain, yTrain, multiSVR)
 
     # Test the model
-    yPred, testingTime = testModel(XTest, yTest, multiSVR, scaler)
+    yPred, testingTime = testModel(XTest, multiSVR, scaler)
     mse = mean_squared_error(yTest, yPred)
     mae = mean_absolute_error(yTest, yPred)
     print(f"MSE: {mse:.4f}, MAE: {mae:.4f}")

@@ -19,7 +19,7 @@ def neuralNetwork(XTrain, yTrain, XTest, yTest, robot, scaler):
     nn, trainingTime = trainModel(XTrain, yTrain, nn)
 
     # Test the model
-    yPred, testingTime = testModel(XTest, yTest, nn, scaler)
+    yPred, testingTime = testModel(XTest, nn, scaler)
 
     mse = mean_squared_error(yTest, yPred)
     mae = mean_absolute_error(yTest, yPred)

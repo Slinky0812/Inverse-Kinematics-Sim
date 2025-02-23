@@ -19,7 +19,7 @@ def gradientBoosting(XTrain, yTrain, XTest, yTest, robot, scaler):
     multiGB, trainingTime = trainModel(XTrain, yTrain, multiGB)
 
     # Test the model
-    yPred, testingTime = testModel(XTest, yTest, multiGB, scaler)
+    yPred, testingTime = testModel(XTest, multiGB, scaler)
 
     mse = mean_squared_error(yTest, yPred)
     mae = mean_absolute_error(yTest, yPred)
