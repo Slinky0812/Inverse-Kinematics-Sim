@@ -14,6 +14,7 @@ from models.random_forest import randomForest
 from models.gradient_boosting import gradientBoosting
 from models.gaussian_regression import gaussianProcessRegression
 from models.lasso import lassoRegression
+from models.kernel_ridge import kernelRidgeRegression
 
 
 def main():
@@ -154,6 +155,17 @@ def main():
     maeValues.append(lassoMAE)
     trainingTimes.append(lassoTrainingTime)
     testingTimes.append(lassoTestingTime)
+
+    print("")
+    print("Kernel Ridge Regression")
+    # train the model using Lasso Regression
+    kRRErrors, kRRmse, kRRmae, kRRTrainingTime, kRRTestingTime = kernelRidgeRegression(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
+    models.append("Kernel Ridge Regression")
+    errors.append(kRRErrors)
+    mseValues.append(kRRmse)
+    maeValues.append(kRRmae)
+    trainingTimes.append(kRRTrainingTime)
+    testingTimes.append(kRRTestingTime)
 
     # plot the results
     plotErrorData(errors)

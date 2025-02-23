@@ -16,6 +16,7 @@ def plotErrorData(errors):
     gRErrors = np.array(errors[7])
     bRErrors = np.array(errors[8])
     lassoErrors = np.array(errors[9])
+    kRRErrors = np.array(errors[10])
 
     # Separate position and orientation errors
     kNNPosErrors, kNNOriErrors = kNNErrors[:, 0], kNNErrors[:, 1]
@@ -28,15 +29,17 @@ def plotErrorData(errors):
     gRPosErrors, gROriErrors = gRErrors[:, 0], gRErrors[:, 1]
     bRPosErrors, bROriErrors = bRErrors[:, 0], bRErrors[:, 1]
     lassoPosErrors, lassoOriErrors = lassoErrors[:, 0], lassoErrors[:, 1]
+    kRRPosErrors, kRROriErrors = kRRErrors[:, 0], kRRErrors[:, 1]
+    
 
     # Plot position errors
-    positionErrorsPlot(kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors, sVRPosErrors, rFPosErrors, gBPosErrors, gRPosErrors, bRPosErrors, lassoPosErrors)
+    positionErrorsPlot(kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors, sVRPosErrors, rFPosErrors, gBPosErrors, gRPosErrors, bRPosErrors, lassoPosErrors, kRRPosErrors)
     
     # Plot orientation errors
-    orientationErrorsPlot(kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors, sVROriErrors, rFOriErrors, gBOriErrors, gROriErrors, bROriErrors, lassoOriErrors)
+    orientationErrorsPlot(kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors, sVROriErrors, rFOriErrors, gBOriErrors, gROriErrors, bROriErrors, lassoOriErrors, kRROriErrors)
 
 
-def positionErrorsPlot(kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors, sVRPosErrors, rFPosErrors, gBPosErrors, gRPosErrors, bRPosErrors, lassoPosErrors):
+def positionErrorsPlot(kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors, sVRPosErrors, rFPosErrors, gBPosErrors, gRPosErrors, bRPosErrors, lassoPosErrors, kRRPosErrors):
     # Prepare data for Seaborn
     data = {
         "Model": ["k-NN"] * len(kNNPosErrors) + 
@@ -48,10 +51,25 @@ def positionErrorsPlot(kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors, sVRP
                 ["Gradient Boosting"] * len(gBPosErrors) +
                 ["Gaussian Process Regression"] * len(gRPosErrors) + 
                 ["Bayesian Linear Regression"] * len(bRPosErrors) + 
-                ["Lasso Regression"] * len(lassoPosErrors),
-        "Position Error": np.concatenate([kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors, sVRPosErrors, rFPosErrors, gBPosErrors, gRPosErrors, bRPosErrors, lassoPosErrors])
+                ["Lasso Regression"] * len(lassoPosErrors) + 
+                ["Kernel Ridge Regression"] * len(kRRPosErrors),
+        "Position Error": np.concatenate([kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors, sVRPosErrors, rFPosErrors, gBPosErrors, gRPosErrors, bRPosErrors, lassoPosErrors, kRRPosErrors])
     }
 
+    # print("")
+    # print("Position Errors")
+    # print(f"kNN - {kNNPosErrors[199]}")
+    # print(f"Linear Regression - {lRPosErrors[199]}")
+    # print(f"Neural Networks - {nNPosErrors[199]}")
+    # print(f"Decision Trees - {dTPosErrors[199]}")
+    # print(f"Support Vector Regression - {sVRPosErrors[199]}")
+    # print(f"Random Forest - {rFPosErrors[199]}")
+    # print(f"Gradient Boosting - {gBPosErrors[199]}")
+    # print(f"Gaussian Process Regression - {gRPosErrors[199]}")
+    # print(f"Lasso Regression - {lassoPosErrors[199]}")
+    # print(f"Kernel Ridge Regression - {kRRPosErrors[199]}")
+    # print("")
+    
     df = pd.DataFrame(data)
 
     # Plot violin plot
@@ -64,7 +82,7 @@ def positionErrorsPlot(kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors, sVRP
     plt.savefig("results/position_error_comparison.png")
 
 
-def orientationErrorsPlot(kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors, sVROriErrors, rFOriErrors, gBOriErrors, gROriErrors, bROriErrors, lassoOriErrors):
+def orientationErrorsPlot(kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors, sVROriErrors, rFOriErrors, gBOriErrors, gROriErrors, bROriErrors, lassoOriErrors, kRROriErrors):
     # Prepare data for Seaborn
     data = {
         "Model": ["k-NN"] * len(kNNOriErrors) + 
@@ -76,9 +94,24 @@ def orientationErrorsPlot(kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors, s
                 ["Gradient Boosting"] * len(gBOriErrors) + 
                 ["Gaussian Process Regression"] * len(gROriErrors) + 
                 ["Bayesian Linear Regression"] * len(bROriErrors) + 
-                ["Lasso Regression"] * len(lassoOriErrors),
-        "Orientation Error": np.concatenate([kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors, sVROriErrors, rFOriErrors, gBOriErrors, gROriErrors, bROriErrors, lassoOriErrors])
+                ["Lasso Regression"] * len(lassoOriErrors) + 
+                ["Kernel Ridge Regression"] * len(kRROriErrors),
+        "Orientation Error": np.concatenate([kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors, sVROriErrors, rFOriErrors, gBOriErrors, gROriErrors, bROriErrors, lassoOriErrors, kRROriErrors])
     }
+
+    # print("")
+    # print("Orientation Errors")
+    # print(f"kNN - {kNNOriErrors[199]}")
+    # print(f"Linear Regression - {lROriErrors[199]}")
+    # print(f"Neural Networks - {nNOriErrors[199]}")
+    # print(f"Decision Trees - {dTOriErrors[199]}")
+    # print(f"Support Vector Regression - {sVROriErrors[199]}")
+    # print(f"Random Forest - {rFOriErrors[199]}")
+    # print(f"Gradient Boosting - {gBOriErrors[199]}")
+    # print(f"Gaussian Process Regression - {gROriErrors[199]}")
+    # print(f"Lasso Regression - {lassoOriErrors[199]}")
+    # print(f"Kernel Ridge Regression - {kRROriErrors[199]}")
+    # print("")
 
     df = pd.DataFrame(data)
 
@@ -95,8 +128,6 @@ def orientationErrorsPlot(kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors, s
 def plotMSEData(mseValues, models):
     plt.figure(figsize=(25, 6))
 
-    # models = ["k-NN", "Linear Regression", "Neural Network", "Decision Trees", "SVR", "Random Forest", "Gradient Boosting", "Gaussian Process Regression", "Bayesian Linear Regression", "Lasso Regression"]
-
     plt.bar(models, mseValues)
     
     plt.xlabel("Models")
@@ -108,9 +139,7 @@ def plotMSEData(mseValues, models):
 
 def plotMAEData(maeValues, models):
     plt.figure(figsize=(25, 6))
-    
-    # models = ["k-NN", "Linear Regression", "Neural Network", "Decision Trees", "SVR", "Random Forest", "Gradient Boosting", "Gaussian Process Regression", "Bayesian Linear Regression", "Lasso Regression"]
-    
+        
     plt.bar(models, maeValues)
     
     plt.xlabel("Models")
@@ -122,8 +151,6 @@ def plotMAEData(maeValues, models):
 
 def plotTimings(trainingTimes, testingTimes, models):
     plt.figure(figsize=(25, 6))
-
-    # models = ["k-NN", "Linear Regression", "Neural Network", "Decision Trees", "SVR", "Random Forest", "Gradient Boosting", "Gaussian Process Regression", "Bayesian Linear Regression", "Lasso Regression"]
     
     x = np.arange(len(models))  # X-axis positions
 

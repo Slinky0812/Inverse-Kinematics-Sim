@@ -3,6 +3,7 @@ import numpy as np
 from numpy.linalg import norm
 import time
 
+
 def generateIKDataset(robot, num_samples):    
     # Get joint limits from URDF
     jointLimits = []
