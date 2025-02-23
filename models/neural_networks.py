@@ -1,6 +1,6 @@
 # Neural Network model
 from sklearn.neural_network import MLPRegressor
-from sklearn.metrics import mean_squared_error, mean_absolute_error
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 from generate.generate_data import calculatePoseErrors, trainModel, testModel
 
@@ -23,8 +23,9 @@ def neuralNetwork(XTrain, yTrain, XTest, yTest, robot, scaler):
 
     mse = mean_squared_error(yTest, yPred)
     mae = mean_absolute_error(yTest, yPred)
+    r2 = r2_score(yTest, yPred)
     print(f"MSE: {mse:.4f}, MAE: {mae:.4f}")
 
     # Calculate pose errors
     poseErrors = calculatePoseErrors(yPred, XTest, robot)
-    return poseErrors, mse, mae, trainingTime, testingTime
+    return poseErrors, mse, mae, trainingTime, testingTime, r2

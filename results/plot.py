@@ -162,3 +162,15 @@ def plotTimings(trainingTimes, testingTimes, models):
     plt.legend()
     plt.grid(axis='y', linestyle='--', alpha=0.6)
     plt.savefig("results/timings_comparison.png")
+
+
+def plotR2Score(r2Scores, models):
+    plt.figure(figsize=(25, 6))
+        
+    plt.bar(models, r2Scores)
+    
+    plt.xlabel("Models")
+    plt.ylabel("r^2")
+    plt.title("r^2 Scores Comparison of Different Models")
+    plt.grid(True, linestyle="--", alpha=0.6)
+    plt.savefig("results/r2_data_comparison.png")
