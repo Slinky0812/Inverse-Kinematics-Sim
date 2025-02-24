@@ -8,6 +8,18 @@ from generate.generate_data import calculatePoseErrors, testModel
 
 
 def kNN(XTrain, yTrain, XTest, yTest, robot, scaler):
+    """
+    k-Nearest Neighbours model with uncertainty quantification and hyperparameter tuning.
+    
+    Args:
+        XTrain, yTrain: Training data
+        XTest, yTest: Test data
+        robot: Robot model for error calculation
+        scaler: Pre-trained scaler
+    
+    Returns:
+        Tuple containing pose errors, metrics, and timings
+    """
     # Create pipeline with scaling
     knnPipe = make_pipeline(
         scaler,
