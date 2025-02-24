@@ -40,22 +40,22 @@ def kNN(XTrain, yTrain, XTest, yTest, robot, scaler):
                              refit='MSE', n_jobs=-1)
     
     gridSearch.fit(XTrain, yTrain)
-    # Get best model and metrics
+
+    # Find best model from grid search
     bestKNN = gridSearch.best_estimator_
     trainingTime = gridSearch.cv_results_['mean_fit_time'][gridSearch.best_index_]
     
     # Test the model
-    # yPred = bestKNN.predict(XTest)
-    # testingTime = time.time() - start_time  # Implement timing
     yPred, testingTime = testModel(XTest, bestKNN, scaler)
 
-    # Calculate metrics
+    # Metrics
     mse = mean_squared_error(yTest, yPred)
     mae = mean_absolute_error(yTest, yPred)
     r2 = r2_score(yTest, yPred)
     
     print(f"Best Params: {gridSearch.best_params_}")
-    print(f"MSE: {mse:.4f}, MAE: {mae:.4f}") #, R²: {r2:.4f}")
+    print(f"MSE: {mse:.4f}, MAE: {mae:.4f}")
 
+    # Pose errors
     poseErrors = calculatePoseErrors(yPred, XTest, robot)
     return poseErrors, mse, mae, trainingTime, testingTime, r2

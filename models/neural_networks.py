@@ -1,31 +1,61 @@
 # Neural Network model
 from sklearn.neural_network import MLPRegressor
+from sklearn.model_selection import GridSearchCV
+from sklearn.pipeline import make_pipeline
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 from generate.generate_data import calculatePoseErrors, trainModel, testModel
 
 
 def neuralNetwork(XTrain, yTrain, XTest, yTest, robot, scaler):
-    nn = MLPRegressor(
-        hidden_layer_sizes=(256, 256, 128),  # 2 hidden layers with 100 neurons each
-        activation='relu',  # Rectified Linear Unit activation function
-        solver='adam',  # Adaptive Moment Estimation optimization algorithm
-        max_iter=1000,  # Maximum number of iterations
-        warm_start=True,  # Reuse the solution of the previous call to fit as initialization
-        random_state=42  # Random seed for reproducibility
+    # Create pipeline with proper naming
+    nNPipe = make_pipeline(
+        scaler,
+        MLPRegressor()
+    )
+    
+    # Parameter grid
+    paramGrid = {
+        'mlpregressor__hidden_layer_sizes': [
+            (256, 256), (512, 256, 128),  # Varying depths
+            (256, 256, 256), (512, 512)
+        ],
+        'mlpregressor__activation': ['relu', 'tanh', 'relu'],
+        'mlpregressor__solver': ['adam', 'lbfgs'],  # Test different solvers
+        'mlpregressor__max_iter': [2000],
+        'mlpregressor__early_stopping': [True],
+        'mlpregressor__validation_fraction': [0.15],  # Slightly more validation data
+        'mlpregressor__n_iter_no_change': [25],  # Longer patience
+        'mlpregressor__learning_rate': ['adaptive'],
+        'mlpregressor__alpha': [0.0001, 0.001, 0.01],
+        'mlpregressor__random_state': [42]
+    }
+
+    # Optimized GridSearch setup
+    gridSearch = GridSearchCV(
+        nNPipe,
+        paramGrid,
+        cv=3,  # Faster than default 5-fold
+        n_jobs=-1,  # Use all CPU cores
+        scoring='neg_mean_squared_error'  # Focus on MSE during search
     )
 
-   # Train the model
-    nn, trainingTime = trainModel(XTrain, yTrain, nn)
+    # Timing with proper benchmarking
+    gridSearch.fit(XTrain, yTrain)
 
+    # Get best model
+    bestNN = gridSearch.best_estimator_
+    trainingTime = gridSearch.cv_results_['mean_fit_time'][gridSearch.best_index_]
+    
     # Test the model
-    yPred, testingTime = testModel(XTest, nn, scaler)
+    yPred, testingTime = testModel(XTest, bestNN, scaler)
 
+    # Metrics
     mse = mean_squared_error(yTest, yPred)
     mae = mean_absolute_error(yTest, yPred)
     r2 = r2_score(yTest, yPred)
-    print(f"MSE: {mse:.4f}, MAE: {mae:.4f}")
+    print(f"MSE: {mse:.4f}, MAE: {mae:.4f}, R²: {r2:.4f}")
 
-    # Calculate pose errors
+    # Pose errors
     poseErrors = calculatePoseErrors(yPred, XTest, robot)
     return poseErrors, mse, mae, trainingTime, testingTime, r2
