@@ -40,9 +40,6 @@ def linearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     # Get best model
     bestLR = gridSearch.best_estimator_
     trainingTime = gridSearch.cv_results_['mean_fit_time'][gridSearch.best_index_]
-    print(f"Training time from gridsearch - {trainingTime}")
-    bestLR, trainingTime = trainModel(XTrain, yTrain, bestLR)
-    print(f"Training time from trainModel - {trainingTime}")
 
     # Test model
     yPred, testingTime = testModel(XTest, bestLR, scaler)
@@ -107,10 +104,8 @@ def bayesianLinearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
 
     # Get best model and predictions
     bestBR = search.best_estimator_
-    bestBR, trainingTime = trainModel(XTrain, yTrain, bestBR)
-    print(f"Training time from br = {trainingTime}")
+    trainingTime = search.cv_results_['mean_fit_time'][search.best_index_]
 
-    # yPred = best_model.predict(XTest)
     yPred, testingTime = testModel(XTest, bestBR, scaler)
 
     # Get prediction uncertainties
@@ -125,14 +120,14 @@ def bayesianLinearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     r2 = r2_score(yTest, yPred)
     
     # Average uncertainty metrics
-    avg_std = np.mean(yStd)
-    max_std = np.max(yStd)
+    avgStd = np.mean(yStd)
+    maxStd = np.max(yStd)
 
     print(f"""
     === Bayesian Regression Results ===
     - Best Params: {search.best_params_}
     - MSE: {mse:.4f}, MAE: {mae:.4f}, R²: {r2:.4f}
-    - Avg Uncertainty: {avg_std:.4f}, Max Uncertainty: {max_std:.4f}
+    - Avg Uncertainty: {avgStd:.4f}, Max Uncertainty: {maxStd:.4f}
     - Training Time: {trainingTime:.2f}s
     """)
 
