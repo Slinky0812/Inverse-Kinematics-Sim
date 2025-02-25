@@ -4,8 +4,9 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-from generate.generate_data import calculatePoseErrors, trainModel, testModel
+from generate.generate_data import calculatePoseErrors, testModel
 
+import time
 
 def neuralNetwork(XTrain, yTrain, XTest, yTest, robot, scaler):
     # Create pipeline with proper naming
@@ -41,7 +42,10 @@ def neuralNetwork(XTrain, yTrain, XTest, yTest, robot, scaler):
     )
 
     # Timing with proper benchmarking
+    currentTime = time.time()
     gridSearch.fit(XTrain, yTrain)
+    endTime = time.time() - currentTime
+    print(f"Total time finding best model = {endTime}")
 
     # Get best model
     bestNN = gridSearch.best_estimator_
