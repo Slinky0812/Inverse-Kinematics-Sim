@@ -1,23 +1,36 @@
 # Kernel Ridge Regression model
 from sklearn.kernel_ridge import KernelRidge
+from sklearn.model_selection import GridSearchCV
+from sklearn.pipeline import make_pipeline
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 from generate.generate_data import calculatePoseErrors, trainModel, testModel
 
 def kernelRidgeRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
-    kr = KernelRidge(
-        alpha=1.0,          # Regularization strength
-        kernel='rbf',       # Radial Basis Function kernel
-        gamma=None,         # Automatically uses 1/n_features
-        degree=3,           # Only used for polynomial kernel
-        coef0=1             # Bias term for polynomial kernel
+    krPipe = make_pipeline(
+        scaler,
+        KernelRidge()
     )
 
-    # Train the model
-    kr, trainingTime = trainModel(XTrain, yTrain, kr)
+    # Define parameter grid
+    paramGrid = {
+        'kernelridge__alpha': [0.01, 0.1, 1.0, 10.0],
+        'kernelridge__gamma': [0.01, 0.1, 1.0, 10.0],
+        'kernelridge__kernel': ['rbf', 'poly', 'linear']
+    }
 
+    # Perform grid search
+    gridSearch = GridSearchCV(
+        krPipe, paramGrid, cv=5, 
+        scoring='neg_mean_squared_error', n_jobs=-1
+    )
+    gridSearch.fit(XTrain, yTrain)
+
+    bestKR = gridSearch.best_estimator_
+    trainingTime = gridSearch.cv_results_['mean_fit_time'][gridSearch.best_index_]
+    
     # Test the model
-    yPred, testingTime = testModel(XTest, kr, scaler)
+    yPred, testingTime = testModel(XTest, bestKR, scaler)
     
     mse = mean_squared_error(yTest, yPred)
     mae = mean_absolute_error(yTest, yPred)
