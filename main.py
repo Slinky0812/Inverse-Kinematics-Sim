@@ -71,17 +71,17 @@ def main():
     testingTimes.append(lRTestingTime)
     r2Scores.append(lRr2)
     
-    print("")
-    print("Neural Networks")
-    # train the model using Neural Networks
-    nNErrors, nNmse, nNmae, nNTrainingTime, nNTestingTime, nNr2 = neuralNetwork(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
-    models.append("Neural Networks")
-    errors.append(nNErrors)
-    mseValues.append(nNmse)
-    maeValues.append(nNmae)
-    trainingTimes.append(nNTrainingTime)
-    testingTimes.append(nNTestingTime)
-    r2Scores.append(nNr2)
+    # print("")
+    # print("Neural Networks")
+    # # train the model using Neural Networks
+    # nNErrors, nNmse, nNmae, nNTrainingTime, nNTestingTime, nNr2 = neuralNetwork(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
+    # models.append("Neural Networks")
+    # errors.append(nNErrors)
+    # mseValues.append(nNmse)
+    # maeValues.append(nNmae)
+    # trainingTimes.append(nNTrainingTime)
+    # testingTimes.append(nNTestingTime)
+    # r2Scores.append(nNr2)
     
     print("")
     print("Decision Trees")
