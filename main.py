@@ -51,7 +51,7 @@ def main():
     print("kNN")
     # train the model using k-Nearest Neighbors
     kNNErrors, kNNmse, kNNmae, kNNTrainingTime, kNNTestingTime, kNNr2 = kNN(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
-    models.append("kNN")
+    models.append("k-Nearest Neighbours")
     errors.append(kNNErrors)
     mseValues.append(kNNmse)
     maeValues.append(kNNmae)

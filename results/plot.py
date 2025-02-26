@@ -100,7 +100,7 @@ def positionErrorsPlot(modelPosErrors, models):
     # print("")
     
     # Plot violin plot
-    plt.figure(figsize=(25, 6))
+    plt.figure(figsize=(30, 6))
     sns.violinplot(x="Model", y="Position Error", data=df)
 
     plt.title("Position Error Comparison (Violin Plot)")
@@ -134,7 +134,7 @@ def orientationErrorsPlot(modelOriErrors, models):
     # print("")
 
     # Plot violin plot
-    plt.figure(figsize=(25, 6))
+    plt.figure(figsize=(30, 6))
     sns.violinplot(x="Model", y="Orientation Error", data=df)
 
     plt.title("Orientation Error Comparison (Violin Plot)")
@@ -144,7 +144,7 @@ def orientationErrorsPlot(modelOriErrors, models):
 
 
 def plotMSEData(mseValues, models):
-    plt.figure(figsize=(25, 6))
+    plt.figure(figsize=(30, 6))
 
     plt.bar(models, mseValues)
     
@@ -156,7 +156,7 @@ def plotMSEData(mseValues, models):
 
 
 def plotMAEData(maeValues, models):
-    plt.figure(figsize=(25, 6))
+    plt.figure(figsize=(30, 6))
         
     plt.bar(models, maeValues)
     
@@ -168,7 +168,7 @@ def plotMAEData(maeValues, models):
 
 
 def plotTimings(trainingTimes, testingTimes, models):
-    plt.figure(figsize=(25, 6))
+    plt.figure(figsize=(30, 6))
     
     x = np.arange(len(models))  # X-axis positions
 
@@ -186,7 +186,7 @@ def plotTimings(trainingTimes, testingTimes, models):
 
 
 def plotR2Score(r2Scores, models):
-    plt.figure(figsize=(25, 6))
+    plt.figure(figsize=(30, 6))
         
     plt.bar(models, r2Scores)
     

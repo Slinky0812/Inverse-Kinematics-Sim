@@ -13,7 +13,7 @@ import time
 def supportVectorRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     svrPipe = make_pipeline(
         scaler,
-        MultiOutputRegressor(LinearSVR())
+        MultiOutputRegressor(LinearSVR(max_iter=1000000))
     )
 
     # Define parameter grid
