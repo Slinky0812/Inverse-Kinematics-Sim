@@ -30,7 +30,7 @@ def plotErrorData(errors, models):
     # Separate position and orientation errors
     kNNPosErrors, kNNOriErrors = kNNErrors[:, 0], kNNErrors[:, 1]
     lRPosErrors, lROriErrors = lRErrors[:, 0], lRErrors[:, 1]
-    nNPosErrors, nNOriErrors = nNErrors[:, 0], nNErrors[:, 1]
+    # nNPosErrors, nNOriErrors = nNErrors[:, 0], nNErrors[:, 1]
     dTPosErrors, dTOriErrors = dTErrors[:, 0], dTErrors[:, 1]
     sVRPosErrors, sVROriErrors = sVRErrors[:, 0], sVRErrors[:, 1]
     rFPosErrors, rFOriErrors = rFErrors[:, 0], rFErrors[:, 1]
