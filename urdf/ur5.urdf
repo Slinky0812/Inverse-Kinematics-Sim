@@ -232,6 +232,12 @@
       </geometry>
       <origin rpy="0 0 0" xyz="-0.01 0 0"/>
     </collision>
+    <inertial>
+      <mass value="0.1"/>  <!-- Adjust the mass as needed -->
+      <origin rpy="0 0 0" xyz="0 0 0"/>  <!-- Centered at the link -->
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/> 
+      <!-- Adjust these values based on your end-effector’s physical properties -->
+    </inertial>
   </link>
 
 </robot>

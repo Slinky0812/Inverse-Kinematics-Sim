@@ -52,7 +52,7 @@ def linearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     print(f"Best alpha: {gridSearch.best_params_['ridge__alpha']}")
     print(f"MSE: {mse:.4f}, MAE: {mae:.4f}, R²: {r2:.4f}")
 
-    poseErrors = calculatePoseErrors(yPred, XTest, robot)
+    poseErrors = calculatePoseErrors(yPred, yTest, robot)
     return poseErrors, mse, mae, trainingTime, testingTime, r2
 
 
@@ -132,6 +132,6 @@ def bayesianLinearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     """)
 
     # Calculate pose errors with uncertainty
-    pose_errors = calculatePoseErrors(yPred, XTest, robot)
+    pose_errors = calculatePoseErrors(yPred, yTest, robot)
     
     return pose_errors, mse, mae, trainingTime, testingTime, r2#, yStd  # Return uncertainties

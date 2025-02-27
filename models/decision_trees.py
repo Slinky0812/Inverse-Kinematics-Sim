@@ -57,5 +57,5 @@ def decisionTree(XTrain, yTrain, XTest, yTest, robot, scaler):
           bestDT.named_steps['decisiontreeregressor'].feature_importances_)
 
     # Pose errors
-    poseErrors = calculatePoseErrors(yPred, XTest, robot)
+    poseErrors = calculatePoseErrors(yPred, yTest, robot)
     return poseErrors, mse, mae, trainingTime, testingTime, r2

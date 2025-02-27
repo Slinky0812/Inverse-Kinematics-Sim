@@ -5,13 +5,6 @@ from scipy.stats import qmc
 import time
 
 
-def angular_distance(a, b):
-    """
-    Calculate minimal angular difference in radians
-    """
-    return np.pi - abs(abs(a - b) - np.pi)
-
-
 def generateIKDataset(robot, numSamples):
     """
     Generates dataset to use to train and test the ml models
@@ -56,6 +49,7 @@ def generateIKDataset(robot, numSamples):
     processedPoses = processEndEffectorPoses(validPoses)
     return processedPoses, np.array(validJointAngles)
 
+
 def processEndEffectorPoses(endEffectorPoses):
     """
     Processes the end effector poses
@@ -69,7 +63,7 @@ def processEndEffectorPoses(endEffectorPoses):
     ])
 
 
-def calculatePoseErrors(yPred, XTest, robot):
+def calculatePoseErrors(yPred, yTest, robot):
     """
     Calculate position and orientation errors between predicted and target poses.
     
@@ -81,41 +75,68 @@ def calculatePoseErrors(yPred, XTest, robot):
     Returns:
         - poseErrors (np.ndarray): Array of shape (n_samples, 2) containing [position_error, orientation_error]
     """
-    # Input validation
-    assert len(yPred) == len(XTest), "Predictions and targets must have same length"
-    assert XTest.shape[1] == 9, "Target poses must have 9 features"
+    # # Input validation
+    # assert len(yPred) == len(XTest), "Predictions and targets must have same length"
+    # assert XTest.shape[1] == 9, "Target poses must have 9 features"
     
-    poseErrors = np.empty((len(yPred), 2))
+    # poseErrors = np.empty((len(yPred), 2))
     
-    for i, (anglesPred, targetPose) in enumerate(zip(yPred, XTest)):
-        # Compute achieved pose
-        achievedPose = robot.solveForwardPositonKinematics(anglesPred)
+    # for i, (anglesPred, targetPose) in enumerate(zip(yPred, XTest)):
+    #     # Compute achieved pose
+    #     achievedPose = robot.solveForwardPositonKinematics(anglesPred)
         
-        # Handle invalid configurations
-        if achievedPose is None:  # Add validity check in your robot class
-            poseErrors[i] = [np.nan, np.nan]
-            continue
+    #     # Handle invalid configurations
+    #     if achievedPose is None:  # Add validity check in your robot class
+    #         poseErrors[i] = [np.nan, np.nan]
+    #         continue
             
-        # Position error (Euclidean distance)
-        positionError = norm(achievedPose[:3] - targetPose[:3])
+    #     # Position error (Euclidean distance)
+    #     positionError = norm(achievedPose[:3] - targetPose[:3])
         
-        # Orientation error calculation
-        # Extract true angles from processed features
-        targetRoll = np.arctan2(targetPose[3], targetPose[4])
-        targetPitch = np.arctan2(targetPose[5], targetPose[6])
-        targetYaw = np.arctan2(targetPose[7], targetPose[8])
+    #     # Orientation error calculation
+    #     # Extract true angles from processed features
+    #     targetRoll = np.arctan2(targetPose[3], targetPose[4])
+    #     targetPitch = np.arctan2(targetPose[5], targetPose[6])
+    #     targetYaw = np.arctan2(targetPose[7], targetPose[8])
         
-        # Calculate angular errors
-        rollError = angular_distance(achievedPose[3], targetRoll)
-        pitchError = angular_distance(achievedPose[4], targetPitch)
-        yawError = angular_distance(achievedPose[5], targetYaw)
+    #     # Calculate angular errors
+    #     rollError = angular_distance(achievedPose[3], targetRoll)
+    #     pitchError = angular_distance(achievedPose[4], targetPitch)
+    #     yawError = angular_distance(achievedPose[5], targetYaw)
         
-        # Combined orientation error (use RMS instead of L2 norm)
-        orientationError = np.sqrt(np.mean([rollError**2, 
-                                           pitchError**2, 
-                                           yawError**2]))
+    #     # Combined orientation error (use RMS instead of L2 norm)
+    #     orientationError = np.sqrt(np.mean([rollError**2, 
+    #                                        pitchError**2, 
+    #                                        yawError**2]))
         
-        poseErrors[i] = [positionError, orientationError]
+    #     poseErrors[i] = [positionError, orientationError]
+    
+    # return poseErrors
+
+    n_samples = yPred.shape[0]
+    poseErrors = np.zeros((n_samples, 2))
+    
+    for i in range(n_samples):
+        # Get actual pose
+        robot.setJointPosition(yTest[i])
+        actual_state = p.getLinkState(robot.robot_id, robot.end_eff_index)
+        actual_pos = np.array(actual_state[0])
+        actual_rot = np.array(actual_state[1])
+        
+        # Get predicted pose
+        robot.setJointPosition(yPred[i])
+        pred_state = p.getLinkState(robot.robot_id, robot.end_eff_index)
+        pred_pos = np.array(pred_state[0])
+        pred_rot = np.array(pred_state[1])
+        
+        # Calculate position error (Euclidean distance)
+        position_error = norm(actual_pos - pred_pos)
+        
+        # Calculate orientation error (quaternion angular difference)
+        dot_product = np.clip(np.abs(np.dot(actual_rot, pred_rot)), 0, 1)
+        orientation_error = 2 * np.arccos(dot_product)
+        
+        poseErrors[i] = [position_error, orientation_error]
     
     return poseErrors
 

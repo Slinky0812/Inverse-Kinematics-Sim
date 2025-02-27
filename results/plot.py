@@ -18,7 +18,6 @@ def plotErrorData(errors, models):
     lassoErrors = np.array(errors[9])
     kRRErrors = np.array(errors[10])
 
-
     # Separate position and orientation errors
     kNNPosErrors, kNNOriErrors = kNNErrors[:, 0], kNNErrors[:, 1]
     lRPosErrors, lROriErrors = lRErrors[:, 0], lRErrors[:, 1]
@@ -52,6 +51,8 @@ def plotErrorData(errors, models):
     # Plot orientation errors
     orientationErrorsPlot(modelOriErrors, models)
 
+    positionVsOrientation(modelPosErrors, modelOriErrors, models)
+
 
 def positionErrorsPlot(modelPosErrors, models):
     # Prepare data for Seaborn
@@ -64,20 +65,6 @@ def positionErrorsPlot(modelPosErrors, models):
         "Model": model_labels,
         "Position Error": errors_flat
     })
-
-    # print("")
-    # print("Position Errors")
-    # print(f"kNN - {kNNPosErrors[199]}")
-    # print(f"Linear Regression - {lRPosErrors[199]}")
-    # print(f"Neural Networks - {nNPosErrors[199]}")
-    # print(f"Decision Trees - {dTPosErrors[199]}")
-    # print(f"Support Vector Regression - {sVRPosErrors[199]}")
-    # print(f"Random Forest - {rFPosErrors[199]}")
-    # print(f"Gradient Boosting - {gBPosErrors[199]}")
-    # print(f"Gaussian Process Regression - {gRPosErrors[199]}")
-    # print(f"Lasso Regression - {lassoPosErrors[199]}")
-    # print(f"Kernel Ridge Regression - {kRRPosErrors[199]}")
-    # print("")
     
     # Plot violin plot
     plt.figure(figsize=(30, 6))
@@ -99,20 +86,6 @@ def orientationErrorsPlot(modelOriErrors, models):
         "Orientation Error": errors_flat
     })
 
-    # print("")
-    # print("Orientation Errors")
-    # print(f"kNN - {kNNOriErrors[199]}")
-    # print(f"Linear Regression - {lROriErrors[199]}")
-    # print(f"Neural Networks - {nNOriErrors[199]}")
-    # print(f"Decision Trees - {dTOriErrors[199]}")
-    # print(f"Support Vector Regression - {sVROriErrors[199]}")
-    # print(f"Random Forest - {rFOriErrors[199]}")
-    # print(f"Gradient Boosting - {gBOriErrors[199]}")
-    # print(f"Gaussian Process Regression - {gROriErrors[199]}")
-    # print(f"Lasso Regression - {lassoOriErrors[199]}")
-    # print(f"Kernel Ridge Regression - {kRROriErrors[199]}")
-    # print("")
-
     # Plot violin plot
     plt.figure(figsize=(30, 6))
     sns.violinplot(x="Model", y="Orientation Error", data=df)
@@ -121,6 +94,23 @@ def orientationErrorsPlot(modelOriErrors, models):
     plt.grid(True, linestyle="--", alpha=0.6)
 
     plt.savefig("results/orientation_error_comparison.png")
+
+
+def positionVsOrientation(modelPosErrors, modelOriErrors, models):
+    # Plot position error vs orientation error for each model
+    for i, model in enumerate(models):
+        plt.figure(figsize=(15, 10))
+
+        plt.scatter(modelPosErrors[i], modelOriErrors[i], label=model, s=100)
+
+        # Labels and title
+        plt.xlabel("Position Error")
+        plt.ylabel("Orientation Error")
+        plt.title(f"Position vs. Orientation Errors for {model} Models")
+        plt.grid(True)
+
+        # save plot
+        plt.savefig(f'results/{model}_position_vs_orientation.png')
 
 
 def plotMSEData(mseValues, models):

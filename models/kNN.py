@@ -57,5 +57,5 @@ def kNN(XTrain, yTrain, XTest, yTest, robot, scaler):
     print(f"MSE: {mse:.4f}, MAE: {mae:.4f}")
 
     # Pose errors
-    poseErrors = calculatePoseErrors(yPred, XTest, robot)
+    poseErrors = calculatePoseErrors(yPred, yTest, robot)
     return poseErrors, mse, mae, trainingTime, testingTime, r2
