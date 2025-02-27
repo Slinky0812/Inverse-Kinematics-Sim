@@ -8,29 +8,21 @@ def plotErrorData(errors, models):
     # Convert to NumPy arrays
     kNNErrors = np.array(errors[0])
     lRErrors = np.array(errors[1])
-    # nNErrors = np.array(errors[2])
-    # dTErrors = np.array(errors[3])
-    # sVRErrors = np.array(errors[4])
-    # rFErrors = np.array(errors[5])
-    # gBErrors = np.array(errors[6])
-    # gRErrors = np.array(errors[7])
-    # bRErrors = np.array(errors[8])
-    # lassoErrors = np.array(errors[9])
-    # kRRErrors = np.array(errors[10])
-    dTErrors = np.array(errors[2])
-    sVRErrors = np.array(errors[3])
-    rFErrors = np.array(errors[4])
-    gBErrors = np.array(errors[5])
-    gRErrors = np.array(errors[6])
-    bRErrors = np.array(errors[7])
-    lassoErrors = np.array(errors[8])
-    kRRErrors = np.array(errors[9])
+    nNErrors = np.array(errors[2])
+    dTErrors = np.array(errors[3])
+    sVRErrors = np.array(errors[4])
+    rFErrors = np.array(errors[5])
+    gBErrors = np.array(errors[6])
+    gRErrors = np.array(errors[7])
+    bRErrors = np.array(errors[8])
+    lassoErrors = np.array(errors[9])
+    kRRErrors = np.array(errors[10])
 
 
     # Separate position and orientation errors
     kNNPosErrors, kNNOriErrors = kNNErrors[:, 0], kNNErrors[:, 1]
     lRPosErrors, lROriErrors = lRErrors[:, 0], lRErrors[:, 1]
-    # nNPosErrors, nNOriErrors = nNErrors[:, 0], nNErrors[:, 1]
+    nNPosErrors, nNOriErrors = nNErrors[:, 0], nNErrors[:, 1]
     dTPosErrors, dTOriErrors = dTErrors[:, 0], dTErrors[:, 1]
     sVRPosErrors, sVROriErrors = sVRErrors[:, 0], sVRErrors[:, 1]
     rFPosErrors, rFOriErrors = rFErrors[:, 0], rFErrors[:, 1]
@@ -41,27 +33,15 @@ def plotErrorData(errors, models):
     kRRPosErrors, kRROriErrors = kRRErrors[:, 0], kRRErrors[:, 1]
 
 
-    # # Create lists of all error arrays
-    # modelPosErrors = [
-    #     kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors,
-    #     sVRPosErrors, rFPosErrors, gBPosErrors, gRPosErrors,
-    #     bRPosErrors, lassoPosErrors, kRRPosErrors
-    # ]
-    
-    # modelOriErrors = [
-    #     kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors,
-    #     sVROriErrors, rFOriErrors, gBOriErrors, gROriErrors,
-    #     bROriErrors, lassoOriErrors, kRROriErrors
-    # ]
-
+    # Create lists of all error arrays
     modelPosErrors = [
-        kNNPosErrors, lRPosErrors, dTPosErrors,
+        kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors,
         sVRPosErrors, rFPosErrors, gBPosErrors, gRPosErrors,
         bRPosErrors, lassoPosErrors, kRRPosErrors
     ]
     
     modelOriErrors = [
-        kNNOriErrors, lROriErrors, dTOriErrors,
+        kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors,
         sVROriErrors, rFOriErrors, gBOriErrors, gROriErrors,
         bROriErrors, lassoOriErrors, kRROriErrors
     ]
@@ -144,7 +124,7 @@ def orientationErrorsPlot(modelOriErrors, models):
 
 
 def plotMSEData(mseValues, models):
-    plt.figure(figsize=(30, 6))
+    plt.figure(figsize=(35, 6))
 
     plt.bar(models, mseValues)
     
@@ -156,7 +136,7 @@ def plotMSEData(mseValues, models):
 
 
 def plotMAEData(maeValues, models):
-    plt.figure(figsize=(30, 6))
+    plt.figure(figsize=(35, 6))
         
     plt.bar(models, maeValues)
     
@@ -168,7 +148,7 @@ def plotMAEData(maeValues, models):
 
 
 def plotTimings(trainingTimes, testingTimes, models):
-    plt.figure(figsize=(30, 6))
+    plt.figure(figsize=(35, 6))
     
     x = np.arange(len(models))  # X-axis positions
 
@@ -186,7 +166,7 @@ def plotTimings(trainingTimes, testingTimes, models):
 
 
 def plotR2Score(r2Scores, models):
-    plt.figure(figsize=(30, 6))
+    plt.figure(figsize=(35, 6))
         
     plt.bar(models, r2Scores)
     

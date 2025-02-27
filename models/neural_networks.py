@@ -12,16 +12,16 @@ def neuralNetwork(XTrain, yTrain, XTest, yTest, robot, scaler):
     # Create pipeline with proper naming
     nNPipe = make_pipeline(
         scaler,
-        MLPRegressor()
+        MLPRegressor(warm_start=True)
     )
     
     # Parameter grid
     paramGrid = {
         'mlpregressor__hidden_layer_sizes': [
             (256, 256), (512, 256, 128),  # Varying depths
-            (256, 256, 256), (512, 512)
+            (128, 128), (512, 512)
         ],
-        'mlpregressor__activation': ['relu', 'tanh', 'relu'],
+        'mlpregressor__activation': ['relu', 'tanh'],
         'mlpregressor__solver': ['adam', 'lbfgs'],  # Test different solvers
         'mlpregressor__max_iter': [2000],
         'mlpregressor__early_stopping': [True],
