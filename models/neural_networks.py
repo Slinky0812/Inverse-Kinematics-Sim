@@ -9,13 +9,32 @@ from generate.generate_data import calculatePoseErrors, testModel
 import time
 
 def neuralNetwork(XTrain, yTrain, XTest, yTest, robot, scaler):
-    # Create pipeline with proper naming
+    """
+    Train and test a Neural Network model
+
+    Args:
+        - XTrain (np.array): Training input set
+        - yTrain (np.array): Training output set
+        - XTest (np.array): Testing input set
+        - yTest (np.array): Testing output set
+        - robot (RobotController): Robot object
+        - scaler (StandardScalar): Scaler object
+
+    Returns:
+        - poseErrors (np.array): Array of position and orientation errors
+        - mse (float): Mean Squared Error
+        - mae (float): Mean Absolute Error
+        - trainingTime (float): Training time
+        - testingTime (float): Testing time
+        - r2 (float): R² score
+    """
+    # Create pipeline
     nNPipe = make_pipeline(
         scaler,
         MLPRegressor(warm_start=True)
     )
     
-    # Parameter grid
+    # Define Parameter grid
     paramGrid = {
         'mlpregressor__hidden_layer_sizes': [
             (256, 256), (512, 256, 128),  # Varying depths
@@ -32,7 +51,7 @@ def neuralNetwork(XTrain, yTrain, XTest, yTest, robot, scaler):
         'mlpregressor__random_state': [42]
     }
 
-    # Optimized GridSearch setup
+    # Perform grid search
     gridSearch = GridSearchCV(
         nNPipe,
         paramGrid,
@@ -40,26 +59,22 @@ def neuralNetwork(XTrain, yTrain, XTest, yTest, robot, scaler):
         n_jobs=-1,  # Use all CPU cores
         scoring='neg_mean_squared_error'  # Focus on MSE during search
     )
-
-    # Timing with proper benchmarking
-    currentTime = time.time()
     gridSearch.fit(XTrain, yTrain)
-    endTime = time.time() - currentTime
-    print(f"Total time finding best model = {endTime}")
 
-    # Get best model
+    # Find the best model
     bestNN = gridSearch.best_estimator_
     trainingTime = gridSearch.cv_results_['mean_fit_time'][gridSearch.best_index_]
     
-    # Test the model
+    # Test the best model
     yPred, testingTime = testModel(XTest, bestNN, scaler)
 
-    # Metrics
+    # Calculate metrics
     mse = mean_squared_error(yTest, yPred)
     mae = mean_absolute_error(yTest, yPred)
     r2 = r2_score(yTest, yPred)
-    print(f"MSE: {mse:.4f}, MAE: {mae:.4f}, R²: {r2:.4f}")
 
-    # Pose errors
+    # Calculate pose errors
     poseErrors = calculatePoseErrors(yPred, yTest, robot)
+
+    # Return results
     return poseErrors, mse, mae, trainingTime, testingTime, r2

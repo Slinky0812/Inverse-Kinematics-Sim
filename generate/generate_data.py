@@ -7,10 +7,10 @@ import time
 
 def generateIKDataset(robot, numSamples):
     """
-    Generates dataset to use to train and test the ml models
+    Generates dataset to use to train and test the ML models
 
     Args:
-        - robot (RobotController): pybullet model with forward kinematics capability
+        - robot (RobotController): Robot object
         - numSamples (int): number of data points to be generated
 
     Returns:
@@ -26,7 +26,7 @@ def generateIKDataset(robot, numSamples):
     samples = sampler.random(n=numSamples)
     haltonJointAngles = qmc.scale(samples, jointLimits[:, 0], jointLimits[:, 1])
     
-    # Data collection
+    # Create lists to store valid poses and joint angles
     validPoses = []
     validJointAngles = []
     
@@ -47,13 +47,19 @@ def generateIKDataset(robot, numSamples):
     
     # Process data
     processedPoses = processEndEffectorPoses(validPoses)
+
+    # Return data
     return processedPoses, np.array(validJointAngles)
 
 
 def processEndEffectorPoses(endEffectorPoses):
     """
     Processes the end effector poses
+
+    Args:
+        - endEffectorPoses (np.array): array of end effector poses
     """
+    # Extract features
     return np.array([
         [x, y, z, 
          np.sin(roll), np.cos(roll),
@@ -70,92 +76,42 @@ def calculatePoseErrors(yPred, yTest, robot):
     Args:
         - yPred (np.ndarray): Predicted joint angles
         - XTest (np.ndarray): Target poses
-        - robot (RobotController): pybullet model with forward kinematics capability
+        - robot (RobotController): Robot object
         
     Returns:
-        - poseErrors (np.ndarray): Array of shape (n_samples, 2) containing [position_error, orientation_error]
+        - poseErrors (np.ndarray): Array of shape (numSamples, 2) containing [position_error, orientation_error]
     """
-    # # Input validation
-    # assert len(yPred) == len(XTest), "Predictions and targets must have same length"
-    # assert XTest.shape[1] == 9, "Target poses must have 9 features"
-    
-    # poseErrors = np.empty((len(yPred), 2))
-    
-    # for i, (anglesPred, targetPose) in enumerate(zip(yPred, XTest)):
-    #     # Compute achieved pose
-    #     achievedPose = robot.solveForwardPositonKinematics(anglesPred)
-        
-    #     # Handle invalid configurations
-    #     if achievedPose is None:  # Add validity check in your robot class
-    #         poseErrors[i] = [np.nan, np.nan]
-    #         continue
-            
-    #     # Position error (Euclidean distance)
-    #     positionError = norm(achievedPose[:3] - targetPose[:3])
-        
-    #     # Orientation error calculation
-    #     # Extract true angles from processed features
-    #     targetRoll = np.arctan2(targetPose[3], targetPose[4])
-    #     targetPitch = np.arctan2(targetPose[5], targetPose[6])
-    #     targetYaw = np.arctan2(targetPose[7], targetPose[8])
-        
-    #     # Calculate angular errors
-    #     rollError = angular_distance(achievedPose[3], targetRoll)
-    #     pitchError = angular_distance(achievedPose[4], targetPitch)
-    #     yawError = angular_distance(achievedPose[5], targetYaw)
-        
-    #     # Combined orientation error (use RMS instead of L2 norm)
-    #     orientationError = np.sqrt(np.mean([rollError**2, 
-    #                                        pitchError**2, 
-    #                                        yawError**2]))
-        
-    #     poseErrors[i] = [positionError, orientationError]
-    
-    # return poseErrors
+    # Find number of samples
+    numSamples = yPred.shape[0]
 
-    n_samples = yPred.shape[0]
-    poseErrors = np.zeros((n_samples, 2))
+    # Initialize array to store errors
+    poseErrors = np.zeros((numSamples, 2))
     
-    for i in range(n_samples):
+    for i in range(numSamples):
         # Get actual pose
         robot.setJointPosition(yTest[i])
-        actual_state = p.getLinkState(robot.robot_id, robot.end_eff_index)
-        actual_pos = np.array(actual_state[0])
-        actual_rot = np.array(actual_state[1])
+        actualState = p.getLinkState(robot.robot_id, robot.end_eff_index)
+        actualPos = np.array(actualState[0]) # Position
+        actualRot = np.array(actualState[1]) # Orientation
         
         # Get predicted pose
         robot.setJointPosition(yPred[i])
-        pred_state = p.getLinkState(robot.robot_id, robot.end_eff_index)
-        pred_pos = np.array(pred_state[0])
-        pred_rot = np.array(pred_state[1])
+        predState = p.getLinkState(robot.robot_id, robot.end_eff_index)
+        predPos = np.array(predState[0]) # Position
+        predRot = np.array(predState[1]) # Orientation
         
         # Calculate position error (Euclidean distance)
-        position_error = norm(actual_pos - pred_pos)
+        positionError = norm(actualPos - predPos)
         
         # Calculate orientation error (quaternion angular difference)
-        dot_product = np.clip(np.abs(np.dot(actual_rot, pred_rot)), 0, 1)
-        orientation_error = 2 * np.arccos(dot_product)
+        dotProduct = np.clip(np.abs(np.dot(actualRot, predRot)), 0, 1)
+        orientationError = 2 * np.arccos(dotProduct)
         
-        poseErrors[i] = [position_error, orientation_error]
+        # Store errors
+        poseErrors[i] = [positionError, orientationError]
     
+    # Return errors
     return poseErrors
-
-
-def trainModel(XTrain, yTrain, model):
-    """
-    Train the ML model
-
-    Args:
-        - XTrain (np.array): Training input set
-        - yTrain (np.array): Training output set
-        - model: ML model
-    """
-    startTrain = time.time()
-    model.fit(XTrain, yTrain)
-    endTrain = time.time()
-    trainingTime = endTrain - startTrain
-
-    return model, trainingTime
 
 
 def testModel(XTest, model, scaler):
@@ -166,6 +122,10 @@ def testModel(XTest, model, scaler):
         - XTest (np.array): Testing input set
         - model: ML model
         - scaler (StandardScaler): Scales the predicted values to match the scale of the actual values
+
+    Returns:
+        - yPred (np.array): Predicted output set
+        - testingTime (float): Testing time
     """
     startTest = time.time()
     yPred = scaler.inverse_transform(model.predict(XTest))

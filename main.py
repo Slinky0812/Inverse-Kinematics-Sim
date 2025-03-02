@@ -18,6 +18,9 @@ from models.kernel_ridge import kernelRidgeRegression
 
 
 def main():
+    """
+    Main function to run the inverse kinematics calculations on different models and evaluate the results
+    """
     # Create instance of robot controller
     robot = RobotController()
     robot.createWorld(view_world=False)
@@ -30,7 +33,7 @@ def main():
     # Split data into training and testing sets (80% training, 20% testing)
     XTrain, XTest, yTrain, yTest = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    # Normalise features to ensure equal weighting in distance calculations:
+    # Normalise features to ensure equal weighting in distance calculations
     scaler = StandardScaler()
     XTrainScaled = scaler.fit_transform(XTrain)
     XTestScaled = scaler.transform(XTest)
@@ -38,7 +41,7 @@ def main():
     yTrainScaled = scaler.fit_transform(yTrain)
     yTestScaled = scaler.transform(yTest)
 
-    # lists to keep track of errors, timings, mae and mse values
+    # Create lists to keep track of models, errors, timings, mae and mse values, and R² scores
     models = []
     errors = []
     mseValues = []
@@ -85,7 +88,7 @@ def main():
     
     print("")
     print("Decision Trees")
-    # train the model using Neural Networks
+    # train the model using Decision Trees
     dTErrors, dTmse, dTmae, dTTrainingTime, dTTestingTime, dTr2 = decisionTree(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
     models.append("Decision Trees")
     errors.append(dTErrors)
@@ -169,7 +172,7 @@ def main():
 
     print("")
     print("Kernel Ridge Regression")
-    # train the model using Lasso Regression
+    # train the model using Kernel Ridge Regression
     kRRErrors, kRRmse, kRRmae, kRRTrainingTime, kRRTestingTime, kRRr2 = kernelRidgeRegression(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
     models.append("Kernel Ridge Regression")
     errors.append(kRRErrors)
@@ -186,14 +189,6 @@ def main():
     plotTimings(trainingTimes, testingTimes, models)
     plotR2Score(r2Scores, models)
 
-    # print("\n")
-    # print("Difference between Linear and Bayes:")
-    # print(f"MSE - Linear: {lRmse}    Bayes: {bRmse}")
-    # print(f"MAE - Linear: {lRmae}    Bayes: {bRmae}")
-    # print(f"Training Times - Linear: {lRTrainingTime}    Bayes: {bRTrainingTime}")
-    # print(f"Testing Times - Linear: {lRTestingTime}    Bayes: {bRTestingTime}")
-    # print("\n")
-    
 
 if __name__ == "__main__":
     main()

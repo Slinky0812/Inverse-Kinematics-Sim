@@ -1,6 +1,6 @@
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.model_selection import GridSearchCV
-from sklearn.pipeline import Pipeline
+from sklearn.pipeline import make_pipeline
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from joblib import parallel_backend
 
@@ -8,12 +8,31 @@ from generate.generate_data import calculatePoseErrors, testModel
 
 
 def decisionTree(XTrain, yTrain, XTest, yTest, robot, scaler):
-    # Create pipeline without scaler
-    dtPipe = Pipeline([
-        ('decisiontreeregressor', DecisionTreeRegressor(random_state=42))
-    ])
+    """
+    Train and test a Decision Tree model
 
-    # Enhanced parameter grid
+    Args:
+        - XTrain (np.array): Training input set
+        - yTrain (np.array): Training output set
+        - XTest (np.array): Testing input set
+        - yTest (np.array): Testing output set
+        - robot (RobotController): Robot object
+        - scaler (StandardScalar): Scaler object
+
+    Returns:
+        - poseErrors (np.array): Array of position and orientation errors
+        - mse (float): Mean Squared Error
+        - mae (float): Mean Absolute Error
+        - trainingTime (float): Training time
+        - testingTime (float): Testing time
+        - r2 (float): R² score
+    """
+    # Create pipeline
+    dtPipe = make_pipeline(
+        DecisionTreeRegressor(random_state=42)
+    )
+
+    # Define parameter grid
     paramGrid = {
         'decisiontreeregressor__max_depth': [None, 5, 10, 15, 20],
         'decisiontreeregressor__min_samples_split': [2, 5, 10],
@@ -22,40 +41,31 @@ def decisionTree(XTrain, yTrain, XTest, yTest, robot, scaler):
         'decisiontreeregressor__ccp_alpha': [0.0, 0.01, 0.1]
     }
 
-    # Configure grid search
+    # Perform grid search
     gridSearch = GridSearchCV(
         dtPipe,
         paramGrid,
         cv=3,
         n_jobs=-1,
         scoring='neg_mean_squared_error',
-        refit=True
     )
+    # with parallel_backend('loky'):  # Use loky backend
+    gridSearch.fit(XTrain, yTrain)
 
-    # Time training properly
-    with parallel_backend('loky'):  # Use loky backend
-        gridSearch.fit(XTrain, yTrain)
-
-    # Get best model
+    # Find the best model
     bestDT = gridSearch.best_estimator_
     trainingTime = gridSearch.cv_results_['mean_fit_time'][gridSearch.best_index_]
-    
-    # Inspect best parameters
-    print(f"Best parameters: {gridSearch.best_params_}")
 
-    # Test the model (assuming testModel is updated)
+    # Test the best model
     yPred, testingTime = testModel(XTest, bestDT, scaler)
     
-    # Metrics
+    # Calculate metrics
     mse = mean_squared_error(yTest, yPred)
     mae = mean_absolute_error(yTest, yPred)
     r2 = r2_score(yTest, yPred)
-    print(f"MSE: {mse:.4f}, MAE: {mae:.4f}, R²: {r2:.4f}")
-
-    # Feature importance analysis
-    print("Feature importances:", 
-          bestDT.named_steps['decisiontreeregressor'].feature_importances_)
 
     # Pose errors
     poseErrors = calculatePoseErrors(yPred, yTest, robot)
+    
+    # Return results
     return poseErrors, mse, mae, trainingTime, testingTime, r2
