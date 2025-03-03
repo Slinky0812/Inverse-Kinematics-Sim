@@ -13,4 +13,4 @@ To run this project, the command is:
 `python main.py`
 
 ## Credits
-The `pybullet_controller.py` file, the `urdf` folder and the `meshes` folder are all from the following github repository: https://github.com/deepakraina99/pybullet-kinematics-dynamics-control
+The `pybullet_kinematics_dynamics_control` folder is a submodule from the following github repository: https://github.com/deepakraina99/pybullet-kinematics-dynamics-control
