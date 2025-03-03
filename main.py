@@ -1,7 +1,7 @@
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
-from pybullet_controller import RobotController
+from pybullet_kinematics_dynamics_control.pybullet_controller import RobotController
 from generate.generate_data import generateIKDataset
 from results.plot import plotErrorData, plotMSEData, plotMAEData, plotTimings, plotR2Score
 
