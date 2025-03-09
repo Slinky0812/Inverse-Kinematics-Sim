@@ -2,5 +2,5 @@
 	path = pybullet_kinematics_dynamics_control
 	url = git@github.com:deepakraina99/pybullet-kinematics-dynamics-control.git
 [submodule "PandaRobot.jl"]
-	path = PandaRobot.jl
+	path = urdf/PandaRobot.jl
 	url = git@github.com:StanfordASL/PandaRobot.jl.git
