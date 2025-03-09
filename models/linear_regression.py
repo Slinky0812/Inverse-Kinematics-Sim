@@ -8,7 +8,7 @@ from sklearn.model_selection import RandomizedSearchCV
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from scipy.stats import loguniform
 
-from generate.generate_data import calculatePoseErrors, testModel
+from generate.generate_data import computePoseErrors, testModel
 
 import numpy as np
 
@@ -67,7 +67,7 @@ def linearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     r2 = r2_score(yTest, yPred)
 
     # Calculate pose errors
-    poseErrors = calculatePoseErrors(yPred, yTest, robot)
+    poseErrors = computePoseErrors(yPred, yTest, robot)
     
     # Return results
     return poseErrors, mse, mae, trainingTime, testingTime, r2
@@ -137,7 +137,7 @@ def bayesianLinearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     r2 = r2_score(yTest, yPred)
 
     # Calculate pose errors
-    pose_errors = calculatePoseErrors(yPred, yTest, robot)
+    pose_errors = computePoseErrors(yPred, yTest, robot)
     
     # Return results
     return pose_errors, mse, mae, trainingTime, testingTime, r2

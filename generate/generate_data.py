@@ -75,7 +75,7 @@ def calculatePoseErrors(yPred, yTest, robot):
     
     Args:
         - yPred (np.ndarray): Predicted joint angles
-        - XTest (np.ndarray): Target poses
+        - yTest (np.ndarray): Target joint angles
         - robot (RobotController): Robot object
         
     Returns:
@@ -109,6 +109,40 @@ def calculatePoseErrors(yPred, yTest, robot):
         
         # Store errors
         poseErrors[i] = [positionError, orientationError]
+    
+    # Return errors
+    return poseErrors
+
+
+def computePoseErrors(yPred, yTest, robot):
+    # Find number of samples
+    numSamples = yPred.shape[0]
+
+    # Initialize array to store errors
+    poseErrors = np.zeros((numSamples, 2))
+    
+
+    for i, (jointAnglesTrue, jointAnglesPred) in enumerate(zip(yTest, yPred)):
+        # Get actual pose
+        robot.setJointPosition(jointAnglesTrue)
+        actualState = p.getLinkState(robot.robot_id, robot.end_eff_index)
+        actualPos = np.array(actualState[0]) # Position
+        actualRot = np.array(actualState[1]) # Orientation
+        
+        # Get predicted pose
+        robot.setJointPosition(jointAnglesPred)
+        predState = p.getLinkState(robot.robot_id, robot.end_eff_index)
+        predPos = np.array(predState[0]) # Position
+        predRot = np.array(predState[1]) # Orientation
+        
+        # Position error (Euclidean distance)
+        posError = np.linalg.norm(np.array(actualPos) - np.array(predPos))
+
+        # Orientation error (Quaternion distance)
+        oriError = 1 - np.abs(np.dot(actualRot, predRot))  # 1 - |q1⋅q2|
+
+        # Store errors
+        poseErrors[i] = [posError, oriError]
     
     # Return errors
     return poseErrors

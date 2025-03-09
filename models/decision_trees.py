@@ -4,7 +4,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from joblib import parallel_backend
 
-from generate.generate_data import calculatePoseErrors, testModel
+from generate.generate_data import computePoseErrors, testModel
 
 
 def decisionTree(XTrain, yTrain, XTest, yTest, robot, scaler):
@@ -65,7 +65,7 @@ def decisionTree(XTrain, yTrain, XTest, yTest, robot, scaler):
     r2 = r2_score(yTest, yPred)
 
     # Pose errors
-    poseErrors = calculatePoseErrors(yPred, yTest, robot)
+    poseErrors = computePoseErrors(yPred, yTest, robot)
     
     # Return results
     return poseErrors, mse, mae, trainingTime, testingTime, r2

@@ -4,7 +4,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-from generate.generate_data import calculatePoseErrors, testModel
+from generate.generate_data import computePoseErrors, testModel
 
 import time
 
@@ -41,8 +41,8 @@ def neuralNetwork(XTrain, yTrain, XTest, yTest, robot, scaler):
             (128, 128), (512, 512)
         ],
         'mlpregressor__activation': ['relu', 'tanh'],
-        'mlpregressor__solver': ['adam', 'lbfgs'],  # Test different solvers
-        'mlpregressor__max_iter': [2000],
+        'mlpregressor__solver': ['adam', 'sgd'],  # Test different solvers
+        'mlpregressor__max_iter': [5000],
         'mlpregressor__early_stopping': [True],
         'mlpregressor__validation_fraction': [0.15],  # Slightly more validation data
         'mlpregressor__n_iter_no_change': [25],  # Longer patience
@@ -74,7 +74,7 @@ def neuralNetwork(XTrain, yTrain, XTest, yTest, robot, scaler):
     r2 = r2_score(yTest, yPred)
 
     # Calculate pose errors
-    poseErrors = calculatePoseErrors(yPred, yTest, robot)
+    poseErrors = computePoseErrors(yPred, yTest, robot)
 
     # Return results
     return poseErrors, mse, mae, trainingTime, testingTime, r2

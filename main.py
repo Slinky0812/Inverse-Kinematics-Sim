@@ -1,3 +1,6 @@
+import pickle
+import numpy as np
+
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
@@ -22,13 +25,28 @@ def main():
     Main function to run the inverse kinematics calculations on different models and evaluate the results
     """
     # Create instance of robot controller
-    robot = RobotController()
+    robot = RobotController(robot_type='/PandaRobot.jl/deps/Panda/panda', controllable_joints=[0, 1, 2, 3, 4, 5, 6])
     robot.createWorld(view_world=False)
+
+    with open('robot-trajectory.pkl', mode='rb') as f:
+        dataset = pickle.load(f)
+
+    inputData = []
+    outputData = []
+    for data in dataset:
+        inputData.append(data[:, :3])
+        outputData.append(data[:, 3:])
+
+    X = np.vstack(inputData)  # Shape: (Total_N, 3)
+    y = np.vstack(outputData)
+
+    print("Input shape:", X.shape)
+    print("Output shape:", y.shape)
 
     # Generate data set
     # X = the end effector pose
     # y = the joint angles
-    X, y = generateIKDataset(robot, numSamples=1000)
+    # X, y = generateIKDataset(robot, numSamples=1000)
 
     # Split data into training and testing sets (80% training, 20% testing)
     XTrain, XTest, yTrain, yTest = train_test_split(X, y, test_size=0.2, random_state=42)

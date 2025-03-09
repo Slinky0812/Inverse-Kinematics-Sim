@@ -4,7 +4,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-from generate.generate_data import calculatePoseErrors, testModel
+from generate.generate_data import computePoseErrors, testModel
 
 
 def kNN(XTrain, yTrain, XTest, yTest, robot, scaler):
@@ -47,7 +47,6 @@ def kNN(XTrain, yTrain, XTest, yTest, robot, scaler):
         cv=3,
         n_jobs=-1,
         scoring='neg_mean_squared_error',
-                # 'MAE': 'neg_mean_absolute_error'},
         refit='MSE', 
     )
     gridSearch.fit(XTrain, yTrain)
@@ -65,7 +64,8 @@ def kNN(XTrain, yTrain, XTest, yTest, robot, scaler):
     r2 = r2_score(yTest, yPred)
 
     # Pose errors
-    poseErrors = calculatePoseErrors(yPred, yTest, robot)
+    poseErrors = computePoseErrors(yPred, yTest, robot)
+    print(poseErrors)
 
     # Return results
     return poseErrors, mse, mae, trainingTime, testingTime, r2
