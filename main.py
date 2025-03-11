@@ -5,7 +5,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 from pybullet_kinematics_dynamics_control.pybullet_controller import RobotController
-from generate.generate_data import generateIKDataset
 from results.plot import plotErrorData, plotMSEData, plotMAEData, plotTimings, plotR2Score
 
 from models.kNN import kNN
@@ -28,6 +27,9 @@ def main():
     robot = RobotController(robot_type='/PandaRobot.jl/deps/Panda/panda', controllable_joints=[0, 1, 2, 3, 4, 5, 6])
     robot.createWorld(view_world=False)
 
+    # Load data set
+    # X = the end effector pose
+    # y = the joint angles
     with open('robot-trajectory.pkl', mode='rb') as f:
         dataset = pickle.load(f)
 
@@ -38,15 +40,10 @@ def main():
         outputData.append(data[:, 3:])
 
     X = np.vstack(inputData)  # Shape: (Total_N, 3)
-    y = np.vstack(outputData)
+    y = np.vstack(outputData) # Shape: (Total_N, 7)
 
     print("Input shape:", X.shape)
     print("Output shape:", y.shape)
-
-    # Generate data set
-    # X = the end effector pose
-    # y = the joint angles
-    # X, y = generateIKDataset(robot, numSamples=1000)
 
     # Split data into training and testing sets (80% training, 20% testing)
     XTrain, XTest, yTrain, yTest = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -92,17 +89,17 @@ def main():
     testingTimes.append(lRTestingTime)
     r2Scores.append(lRr2)
     
-    print("")
-    print("Neural Networks")
-    # train the model using Neural Networks
-    nNErrors, nNmse, nNmae, nNTrainingTime, nNTestingTime, nNr2 = neuralNetwork(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
-    models.append("Neural Networks")
-    errors.append(nNErrors)
-    mseValues.append(nNmse)
-    maeValues.append(nNmae)
-    trainingTimes.append(nNTrainingTime)
-    testingTimes.append(nNTestingTime)
-    r2Scores.append(nNr2)
+    # print("")
+    # print("Neural Networks")
+    # # train the model using Neural Networks
+    # nNErrors, nNmse, nNmae, nNTrainingTime, nNTestingTime, nNr2 = neuralNetwork(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
+    # models.append("Neural Networks")
+    # errors.append(nNErrors)
+    # mseValues.append(nNmse)
+    # maeValues.append(nNmae)
+    # trainingTimes.append(nNTrainingTime)
+    # testingTimes.append(nNTestingTime)
+    # r2Scores.append(nNr2)
     
     print("")
     print("Decision Trees")
@@ -116,89 +113,89 @@ def main():
     testingTimes.append(dTTestingTime)
     r2Scores.append(dTr2)
 
-    print("")
-    print("Support Vector Regression")
-    # train the model using Support Vector Regression
-    sVRErrors, sVRmse, sVRmae, sVRTrainingTime, sVRTestingTime, sVRr2 = supportVectorRegression(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
-    models.append("Support Vector Regression")
-    errors.append(sVRErrors)
-    mseValues.append(sVRmse)
-    maeValues.append(sVRmae)
-    trainingTimes.append(sVRTrainingTime)
-    testingTimes.append(sVRTestingTime)
-    r2Scores.append(sVRr2)
+    # print("")
+    # print("Support Vector Regression")
+    # # train the model using Support Vector Regression
+    # sVRErrors, sVRmse, sVRmae, sVRTrainingTime, sVRTestingTime, sVRr2 = supportVectorRegression(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
+    # models.append("Support Vector Regression")
+    # errors.append(sVRErrors)
+    # mseValues.append(sVRmse)
+    # maeValues.append(sVRmae)
+    # trainingTimes.append(sVRTrainingTime)
+    # testingTimes.append(sVRTestingTime)
+    # r2Scores.append(sVRr2)
 
-    print("")
-    print("Random Forest")
-    # train the model using Random Forest
-    rFErrors, rFmse, rFmae, rFTrainingTime, rFTestingTime, rFr2 = randomForest(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
-    models.append("Random Forest")
-    errors.append(rFErrors)
-    mseValues.append(rFmse)
-    maeValues.append(rFmae)
-    trainingTimes.append(rFTrainingTime)
-    testingTimes.append(rFTestingTime)
-    r2Scores.append(rFr2)
+    # print("")
+    # print("Random Forest")
+    # # train the model using Random Forest
+    # rFErrors, rFmse, rFmae, rFTrainingTime, rFTestingTime, rFr2 = randomForest(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
+    # models.append("Random Forest")
+    # errors.append(rFErrors)
+    # mseValues.append(rFmse)
+    # maeValues.append(rFmae)
+    # trainingTimes.append(rFTrainingTime)
+    # testingTimes.append(rFTestingTime)
+    # r2Scores.append(rFr2)
 
-    print("")
-    print("Gradient Boosting")
-    # train the model using Gradient Boosting
-    gBErrors, gBmse, gBmae, gBTrainingTime, gBTestingTime, gBr2 = gradientBoosting(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
-    models.append("Gradient Boosting")
-    errors.append(gBErrors)
-    mseValues.append(gBmse)
-    maeValues.append(gBmae)
-    trainingTimes.append(gBTrainingTime)
-    testingTimes.append(gBTestingTime)
-    r2Scores.append(gBr2)
+    # print("")
+    # print("Gradient Boosting")
+    # # train the model using Gradient Boosting
+    # gBErrors, gBmse, gBmae, gBTrainingTime, gBTestingTime, gBr2 = gradientBoosting(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
+    # models.append("Gradient Boosting")
+    # errors.append(gBErrors)
+    # mseValues.append(gBmse)
+    # maeValues.append(gBmae)
+    # trainingTimes.append(gBTrainingTime)
+    # testingTimes.append(gBTestingTime)
+    # r2Scores.append(gBr2)
 
-    print("")
-    print("Gaussian Process Regression")
-    # train the model using Gaussian Process Regression
-    gRErrors, gRmse, gRmae, gRTrainingTime, gRTestingTime, gRr2 = gaussianProcessRegression(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
-    models.append("Gaussian Process Regression")
-    errors.append(gRErrors)
-    mseValues.append(gRmse)
-    maeValues.append(gRmae)
-    trainingTimes.append(gRTrainingTime)
-    testingTimes.append(gRTestingTime)
-    r2Scores.append(gRr2)
+    # print("")
+    # print("Gaussian Process Regression")
+    # # train the model using Gaussian Process Regression
+    # gRErrors, gRmse, gRmae, gRTrainingTime, gRTestingTime, gRr2 = gaussianProcessRegression(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
+    # models.append("Gaussian Process Regression")
+    # errors.append(gRErrors)
+    # mseValues.append(gRmse)
+    # maeValues.append(gRmae)
+    # trainingTimes.append(gRTrainingTime)
+    # testingTimes.append(gRTestingTime)
+    # r2Scores.append(gRr2)
 
-    print("")
-    print("Bayesian Linear Regression")
-    # train the model using Bayesian Linear Regression
-    bRErrors, bRmse, bRmae, bRTrainingTime, bRTestingTime, bRr2 = bayesianLinearRegression(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
-    models.append("Bayesian Linear Regression")
-    errors.append(bRErrors)
-    mseValues.append(bRmse)
-    maeValues.append(bRmae)
-    trainingTimes.append(bRTrainingTime)
-    testingTimes.append(bRTestingTime)
-    r2Scores.append(bRr2)
+    # print("")
+    # print("Bayesian Linear Regression")
+    # # train the model using Bayesian Linear Regression
+    # bRErrors, bRmse, bRmae, bRTrainingTime, bRTestingTime, bRr2 = bayesianLinearRegression(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
+    # models.append("Bayesian Linear Regression")
+    # errors.append(bRErrors)
+    # mseValues.append(bRmse)
+    # maeValues.append(bRmae)
+    # trainingTimes.append(bRTrainingTime)
+    # testingTimes.append(bRTestingTime)
+    # r2Scores.append(bRr2)
 
-    print("")
-    print("Lasso Regression")
-    # train the model using Lasso Regression
-    lassoErrors, lassoMSE, lassoMAE, lassoTrainingTime, lassoTestingTime, lassoR2 = lassoRegression(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
-    models.append("Lasso Regression")
-    errors.append(lassoErrors)
-    mseValues.append(lassoMSE)
-    maeValues.append(lassoMAE)
-    trainingTimes.append(lassoTrainingTime)
-    testingTimes.append(lassoTestingTime)
-    r2Scores.append(lassoR2)
+    # print("")
+    # print("Lasso Regression")
+    # # train the model using Lasso Regression
+    # lassoErrors, lassoMSE, lassoMAE, lassoTrainingTime, lassoTestingTime, lassoR2 = lassoRegression(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
+    # models.append("Lasso Regression")
+    # errors.append(lassoErrors)
+    # mseValues.append(lassoMSE)
+    # maeValues.append(lassoMAE)
+    # trainingTimes.append(lassoTrainingTime)
+    # testingTimes.append(lassoTestingTime)
+    # r2Scores.append(lassoR2)
 
-    print("")
-    print("Kernel Ridge Regression")
-    # train the model using Kernel Ridge Regression
-    kRRErrors, kRRmse, kRRmae, kRRTrainingTime, kRRTestingTime, kRRr2 = kernelRidgeRegression(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
-    models.append("Kernel Ridge Regression")
-    errors.append(kRRErrors)
-    mseValues.append(kRRmse)
-    maeValues.append(kRRmae)
-    trainingTimes.append(kRRTrainingTime)
-    testingTimes.append(kRRTestingTime)
-    r2Scores.append(kRRr2)
+    # print("")
+    # print("Kernel Ridge Regression")
+    # # train the model using Kernel Ridge Regression
+    # kRRErrors, kRRmse, kRRmae, kRRTrainingTime, kRRTestingTime, kRRr2 = kernelRidgeRegression(XTrainScaled, yTrainScaled, XTestScaled, yTestScaled, robot, scaler)
+    # models.append("Kernel Ridge Regression")
+    # errors.append(kRRErrors)
+    # mseValues.append(kRRmse)
+    # maeValues.append(kRRmae)
+    # trainingTimes.append(kRRTrainingTime)
+    # testingTimes.append(kRRTestingTime)
+    # r2Scores.append(kRRr2)
 
     # plot the results
     plotErrorData(errors, models)

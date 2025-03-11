@@ -4,7 +4,8 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-from generate.generate_data import computePoseErrors, testModel
+from generate.generate_data import calculatePoseErrors, testModel
+
 
 def kernelRidgeRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     """
@@ -44,7 +45,7 @@ def kernelRidgeRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
         krPipe, 
         paramGrid, 
         cv=3,
-        n_jobs=-1, 
+        n_jobs=2, 
         scoring='neg_mean_squared_error'
     )
     gridSearch.fit(XTrain, yTrain)
@@ -62,7 +63,7 @@ def kernelRidgeRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     r2 = r2_score(yTest, yPred)
 
     # Calculate pose errors
-    poseErrors = computePoseErrors(yPred, yTest, robot)
+    poseErrors = calculatePoseErrors(yPred, yTest, robot)
 
     # Return results
     return poseErrors, mse, mae, trainingTime, testingTime, r2

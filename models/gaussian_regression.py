@@ -4,9 +4,7 @@ from sklearn.gaussian_process.kernels import RBF, WhiteKernel, ConstantKernel, R
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-import numpy as np
-
-from generate.generate_data import computePoseErrors, testModel
+from generate.generate_data import calculatePoseErrors, testModel
 
 
 def gaussianProcessRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
@@ -31,22 +29,22 @@ def gaussianProcessRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     """
     # Define a list of candidate kernels
     kernel_options = [
-        ConstantKernel(1.0, constant_value_bounds=(1e-100, 1e3)) * 
-        RBF(length_scale=1.0, length_scale_bounds=(1e-100, 1e3)) + 
-        WhiteKernel(noise_level=1e-3, noise_level_bounds=(1e-100, 1e1)),  # RBF
+        ConstantKernel(1.0, constant_value_bounds=(1e-2, 1e2)) * 
+        RBF(length_scale=1.0, length_scale_bounds=(1e-2, 1e2)) + 
+        WhiteKernel(noise_level=1e-3, noise_level_bounds=(1e-2, 1e2)),  # RBF
 
-        ConstantKernel(1.0, constant_value_bounds=(1e-100, 1e3)) * 
-        Matern(length_scale=1.0, length_scale_bounds=(1e-100, 1e3), nu=1.5) + 
-        WhiteKernel(noise_level=1e-3, noise_level_bounds=(1e-100, 1e1)),  # Matern
+        ConstantKernel(1.0, constant_value_bounds=(1e-2, 1e2)) * 
+        Matern(length_scale=1.0, length_scale_bounds=(1e-2, 1e2), nu=1.5) + 
+        WhiteKernel(noise_level=1e-3, noise_level_bounds=(1e-2, 1e2)),  # Matern
 
-        ConstantKernel(1.0, constant_value_bounds=(1e-100, 1e3)) * 
-        RationalQuadratic(length_scale=1.0, alpha=1.0, length_scale_bounds=(1e-100, 1e3)) + 
-        WhiteKernel(noise_level=1e-3, noise_level_bounds=(1e-100, 1e1)),  # RationalQuadratic
+        ConstantKernel(1.0, constant_value_bounds=(1e-2, 1e2)) * 
+        RationalQuadratic(length_scale=1.0, alpha=1.0, length_scale_bounds=(1e-2, 1e2)) + 
+        WhiteKernel(noise_level=1e-3, noise_level_bounds=(1e-2, 1e2)),  # RationalQuadratic
 
-        ConstantKernel(1.0, constant_value_bounds=(1e-100, 1e3)) * 
-        (RBF(length_scale=1.0, length_scale_bounds=(1e-100, 1e3)) + 
-        Matern(length_scale=1.0, length_scale_bounds=(1e-100, 1e3), nu=1.5)) + 
-        WhiteKernel(noise_level=1e-3, noise_level_bounds=(1e-100, 1e1))  # RBF + Matern
+        ConstantKernel(1.0, constant_value_bounds=(1e-2, 1e2)) * 
+        (RBF(length_scale=1.0, length_scale_bounds=(1e-2, 1e2)) + 
+        Matern(length_scale=1.0, length_scale_bounds=(1e-2, 1e2), nu=1.5)) + 
+        WhiteKernel(noise_level=1e-3, noise_level_bounds=(1e-2, 1e2))  # RBF + Matern
     ]
         
     # Initialize the model
@@ -64,7 +62,7 @@ def gaussianProcessRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
         estimator=gp,
         param_grid=paramGrid,
         cv=3,
-        n_jobs=-1,
+        n_jobs=2,
         scoring='neg_mean_squared_error',
     )
     gridSearch.fit(XTrain, yTrain)
@@ -82,7 +80,7 @@ def gaussianProcessRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     r2 = r2_score(yTest, yPred)
     
     # Calculate pose errors
-    poseErrors = computePoseErrors(yPred, yTest, robot)
+    poseErrors = calculatePoseErrors(yPred, yTest, robot)
 
     # Return results
     return poseErrors, mse, mae, trainingTime, testingTime, r2
