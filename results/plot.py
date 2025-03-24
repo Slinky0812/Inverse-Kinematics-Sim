@@ -15,51 +15,43 @@ def plotErrorData(errors, models):
     # Convert to NumPy arrays
     kNNErrors = np.array(errors[0])
     lRErrors = np.array(errors[1])
-    # nNErrors = np.array(errors[2])
-    # dTErrors = np.array(errors[3])
-    # sVRErrors = np.array(errors[4])
-    # rFErrors = np.array(errors[5])
-    # gBErrors = np.array(errors[6])
-    # gRErrors = np.array(errors[7])
-    # bRErrors = np.array(errors[8])
-    # lassoErrors = np.array(errors[9])
-    # kRRErrors = np.array(errors[10])
-    dTErrors = np.array(errors[2])
+    nNErrors = np.array(errors[2])
+    dTErrors = np.array(errors[3])
+    sVRErrors = np.array(errors[4])
+    rFErrors = np.array(errors[5])
+    gBErrors = np.array(errors[6])
+    gRErrors = np.array(errors[7])
+    bRErrors = np.array(errors[8])
+    lassoErrors = np.array(errors[9])
+    kRRErrors = np.array(errors[10])
+
 
     # Separate position and orientation errors
     kNNPosErrors, kNNOriErrors = kNNErrors[:, 0], kNNErrors[:, 1]
     lRPosErrors, lROriErrors = lRErrors[:, 0], lRErrors[:, 1]
-    # nNPosErrors, nNOriErrors = nNErrors[:, 0], nNErrors[:, 1]
+    nNPosErrors, nNOriErrors = nNErrors[:, 0], nNErrors[:, 1]
     dTPosErrors, dTOriErrors = dTErrors[:, 0], dTErrors[:, 1]
-    # sVRPosErrors, sVROriErrors = sVRErrors[:, 0], sVRErrors[:, 1]
-    # rFPosErrors, rFOriErrors = rFErrors[:, 0], rFErrors[:, 1]
-    # gBPosErrors, gBOriErrors = gBErrors[:, 0], gBErrors[:, 1]
-    # gRPosErrors, gROriErrors = gRErrors[:, 0], gRErrors[:, 1]
-    # bRPosErrors, bROriErrors = bRErrors[:, 0], bRErrors[:, 1]
-    # lassoPosErrors, lassoOriErrors = lassoErrors[:, 0], lassoErrors[:, 1]
-    # kRRPosErrors, kRROriErrors = kRRErrors[:, 0], kRRErrors[:, 1]
+    sVRPosErrors, sVROriErrors = sVRErrors[:, 0], sVRErrors[:, 1]
+    rFPosErrors, rFOriErrors = rFErrors[:, 0], rFErrors[:, 1]
+    gBPosErrors, gBOriErrors = gBErrors[:, 0], gBErrors[:, 1]
+    gRPosErrors, gROriErrors = gRErrors[:, 0], gRErrors[:, 1]
+    bRPosErrors, bROriErrors = bRErrors[:, 0], bRErrors[:, 1]
+    lassoPosErrors, lassoOriErrors = lassoErrors[:, 0], lassoErrors[:, 1]
+    kRRPosErrors, kRROriErrors = kRRErrors[:, 0], kRRErrors[:, 1]
 
 
     # Create lists of all error arrays
-    # modelPosErrors = [
-    #     kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors,
-    #     sVRPosErrors, rFPosErrors, gBPosErrors, gRPosErrors,
-    #     bRPosErrors, lassoPosErrors, kRRPosErrors
-    # ]
-    
-    # modelOriErrors = [
-    #     kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors,
-    #     sVROriErrors, rFOriErrors, gBOriErrors, gROriErrors,
-    #     bROriErrors, lassoOriErrors, kRROriErrors
-    # ]
     modelPosErrors = [
-        kNNPosErrors, lRPosErrors, dTPosErrors
+        kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors,
+        sVRPosErrors, rFPosErrors, gBPosErrors, gRPosErrors,
+        bRPosErrors, lassoPosErrors, kRRPosErrors
     ]
     
     modelOriErrors = [
-        kNNOriErrors, lROriErrors, dTOriErrors
+        kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors,
+        sVROriErrors, rFOriErrors, gBOriErrors, gROriErrors,
+        bROriErrors, lassoOriErrors, kRROriErrors
     ]
-
 
     # Plot position errors
     positionErrorsPlot(modelPosErrors, models)
@@ -188,6 +180,12 @@ def plotMSEData(mseValues, models):
     # Save plot
     plt.savefig("results/mse_data_comparison.png")
 
+    # plot table
+    df = pd.DataFrame()
+    df['Models'] = models
+    df['MSE'] = mseValues
+    df.to_csv('results/mse_data_comparison.csv', index=False)
+
 
 def plotMAEData(maeValues, models):
     """
@@ -210,6 +208,13 @@ def plotMAEData(maeValues, models):
 
     # Save plot
     plt.savefig("results/mae_data_comparison.png")
+
+    # plot table
+    df = pd.DataFrame()
+    df['Models'] = models
+    df['MAE'] = maeValues
+    df.to_csv('results/mae_data_comparison.csv', index=False)
+
 
 
 def plotTimings(trainingTimes, testingTimes, models):
@@ -240,6 +245,13 @@ def plotTimings(trainingTimes, testingTimes, models):
     # Save plot
     plt.savefig("results/timings_comparison.png")
 
+    # plot table
+    df = pd.DataFrame()
+    df['Models'] = models
+    df['Training Times'] = trainingTimes
+    df['Testing Times'] = testingTimes
+    df.to_csv('results/timings_comparison.csv', index=False)
+
 
 def plotR2Score(r2Scores, models):
     """
@@ -262,3 +274,16 @@ def plotR2Score(r2Scores, models):
     
     # Save plot
     plt.savefig("results/r2_data_comparison.png")
+
+    # plot table
+    df = pd.DataFrame()
+    df['Models'] = models
+    df['R²'] = r2Scores
+    df.to_csv('results/r2_data_comparison.csv', index=False)
+
+
+def storeBestParams(bestParams, models):
+    with open('results/best_parameters.txt', 'w') as f:
+        for model, param in zip(models, bestParams):
+            f.write(f"The model {model}'s best parameters are: {param}")
+            f.write("")

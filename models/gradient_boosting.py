@@ -66,4 +66,4 @@ def gradientBoosting(XTrain, yTrain, XTest, yTest, robot, scaler):
 	poseErrors = calculatePoseErrors(yPred, yTest, robot)
 
 	# Return results
-	return poseErrors, mse, mae, trainingTime, testingTime, r2
+	return poseErrors, mse, mae, trainingTime, testingTime, r2, gridSearch.best_params_

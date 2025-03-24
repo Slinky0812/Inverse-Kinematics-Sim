@@ -1,6 +1,6 @@
 # Neural Network model
 from sklearn.neural_network import MLPRegressor
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import RandomizedSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
@@ -33,6 +33,8 @@ def neuralNetwork(XTrain, yTrain, XTest, yTest, robot, scaler):
         MLPRegressor(warm_start=True)
     )
     
+    # gridSearch = MLPRegressor(alpha=0.01, early_stopping=True, hidden_layer_sizes=(512, 256, 128), learning_rate='adaptive', max_iter=5000, n_iter_no_change=25, random_state=42, validation_fraction=0.15, activation='relu', solver='adam', warm_start=True)
+    
     # Define Parameter grid
     paramGrid = {
         'mlpregressor__hidden_layer_sizes': [
@@ -51,7 +53,7 @@ def neuralNetwork(XTrain, yTrain, XTest, yTest, robot, scaler):
     }
 
     # Perform grid search
-    gridSearch = GridSearchCV(
+    gridSearch = RandomizedSearchCV(
         nNPipe,
         paramGrid,
         cv=3,  # Faster than default 5-fold
@@ -63,9 +65,10 @@ def neuralNetwork(XTrain, yTrain, XTest, yTest, robot, scaler):
     # Find the best model
     bestNN = gridSearch.best_estimator_
     trainingTime = gridSearch.cv_results_['mean_fit_time'][gridSearch.best_index_]
-    
+
     # Test the best model
     yPred, testingTime = testModel(XTest, bestNN, scaler)
+    # yPred, testingTime = testModel(XTest, gridSearch, scaler)
 
     # Calculate metrics
     mse = mean_squared_error(yTest, yPred)
@@ -76,4 +79,4 @@ def neuralNetwork(XTrain, yTrain, XTest, yTest, robot, scaler):
     poseErrors = calculatePoseErrors(yPred, yTest, robot)
 
     # Return results
-    return poseErrors, mse, mae, trainingTime, testingTime, r2
+    return poseErrors, mse, mae, trainingTime, testingTime, r2, gridSearch.get_params()

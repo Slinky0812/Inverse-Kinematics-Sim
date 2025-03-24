@@ -70,7 +70,7 @@ def linearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     poseErrors = calculatePoseErrors(yPred, yTest, robot)
     
     # Return results
-    return poseErrors, mse, mae, trainingTime, testingTime, r2
+    return poseErrors, mse, mae, trainingTime, testingTime, r2, gridSearch.best_params_
 
 
 def bayesianLinearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
@@ -140,4 +140,4 @@ def bayesianLinearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     pose_errors = calculatePoseErrors(yPred, yTest, robot)
     
     # Return results
-    return pose_errors, mse, mae, trainingTime, testingTime, r2
+    return pose_errors, mse, mae, trainingTime, testingTime, r2, search.best_params_

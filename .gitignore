@@ -1,4 +1,6 @@
 __pycache__/
 projectEnv/
 results/*.png
+results/*.csv
 **/__pycache__/
+results/*.txt
