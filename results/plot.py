@@ -161,6 +161,7 @@ def positionVsOrientation(modelPosErrors, modelOriErrors, models):
 def plotMSEData(mseValues, models):
     """
     Plot the Mean Squared Error for each model as a bar chart
+    Stores the data as a table in a CSV file
     
     Args:
         - mseValues (array): List of Mean Squared Errors for each model
@@ -190,7 +191,8 @@ def plotMSEData(mseValues, models):
 def plotMAEData(maeValues, models):
     """
     Plot the Mean Absolute Error for each model as a bar chart
-    
+    Stores the data as a table in a CSV file
+
     Args:
         - maeValues (array): List of Mean Absolute Errors for each model
         - models (array): List of model names
@@ -220,6 +222,7 @@ def plotMAEData(maeValues, models):
 def plotTimings(trainingTimes, testingTimes, models):
     """
     Plot training and testing times for each model as a grouped bar chart
+    Stores the data as a table in a CSV file
 
     Args:
         - trainingTimes (array): List of training times for each model
@@ -256,6 +259,7 @@ def plotTimings(trainingTimes, testingTimes, models):
 def plotR2Score(r2Scores, models):
     """
     Plot the R² scores for each model as a bar chart
+    Stores the data as a table in a CSV file
 
     Args:
         - r2Scores (array): List of R² scores for each model
@@ -283,6 +287,13 @@ def plotR2Score(r2Scores, models):
 
 
 def storeBestParams(bestParams, models):
+    """
+    Stores the best parameters for each model as a table in a CSV file
+    
+    Args:
+        - bestParams (array): List of the best parameters for each model
+        - models (array): List of model names  
+    """
     with open('results/best_parameters.txt', 'w') as f:
         for model, param in zip(models, bestParams):
             f.write(f"The model {model}'s best parameters are: {param}")

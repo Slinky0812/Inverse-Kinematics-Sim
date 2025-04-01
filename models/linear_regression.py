@@ -32,6 +32,7 @@ def linearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
         - trainingTime (float): Training time
         - testingTime (float): Testing time
         - r2 (float): R² score
+        - gridSearch.best_params_: Best parameters for the model
     """
     # Create pipeline
     lrPipe = make_pipeline(
@@ -92,6 +93,7 @@ def bayesianLinearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
         - trainingTime (float): Training time
         - testingTime (float): Testing time
         - r2 (float): R² score
+        - search.best_params_: Best parameters for the model
     """
     # Create pipeline
     pipeline = make_pipeline(
@@ -113,14 +115,12 @@ def bayesianLinearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     }
 
     # Perform randomized search 
-    search = RandomizedSearchCV(
+    search = GridSearchCV(
         pipeline,
         paramGrid,
-        # n_iter=20,
         cv=3,
         scoring='neg_mean_squared_error',
         n_jobs=2,
-        # random_state=42
     )
     search.fit(XTrain, yTrain)
 

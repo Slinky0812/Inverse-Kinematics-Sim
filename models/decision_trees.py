@@ -3,10 +3,12 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-from generate.generate_data import calculatePoseErrors, testModel
+from generate.generate_data import calculatePoseErrors
+
+import time
 
 
-def decisionTree(XTrain, yTrain, XTest, yTest, robot, scaler):
+def decisionTree(XTrain, yTrain, XTest, yTest, robot):
     """
     Train and test a Decision Tree model
 
@@ -25,10 +27,11 @@ def decisionTree(XTrain, yTrain, XTest, yTest, robot, scaler):
         - trainingTime (float): Training time
         - testingTime (float): Testing time
         - r2 (float): R² score
+        - gridSearch.best_params_: Best parameters for the model
     """
     # Create pipeline
     dtPipe = make_pipeline(
-        DecisionTreeRegressor(random_state=42)
+        DecisionTreeRegressor()
     )
 
     # Define parameter grid
@@ -48,7 +51,6 @@ def decisionTree(XTrain, yTrain, XTest, yTest, robot, scaler):
         n_jobs=2,
         scoring='neg_mean_squared_error',
     )
-    # with parallel_backend('loky'):  # Use loky backend
     gridSearch.fit(XTrain, yTrain)
 
     # Find the best model
@@ -56,7 +58,10 @@ def decisionTree(XTrain, yTrain, XTest, yTest, robot, scaler):
     trainingTime = gridSearch.cv_results_['mean_fit_time'][gridSearch.best_index_]
 
     # Test the best model
-    yPred, testingTime = testModel(XTest, bestDT, scaler)
+    startTest = time.time()
+    yPred = bestDT.predict(XTest)
+    endTest = time.time()
+    testingTime = endTest - startTest
     
     # Calculate metrics
     mse = mean_squared_error(yTest, yPred)

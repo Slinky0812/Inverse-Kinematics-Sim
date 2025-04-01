@@ -26,6 +26,7 @@ def kernelRidgeRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
         - trainingTime (float): Training time
         - testingTime (float): Testing time
         - r2 (float): R² score
+        - gridSearch.best_params_: Best parameters for the model 
     """
     # Create pipeline
     krPipe = make_pipeline(

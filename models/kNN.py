@@ -26,6 +26,7 @@ def kNN(XTrain, yTrain, XTest, yTest, robot, scaler):
         - trainingTime (float): Training time
         - testingTime (float): Testing time
         - r2 (float): R² score
+        - gridSearch.best_params_: Best parameters for the model
     """
     # Create pipeline
     knnPipe = make_pipeline(
@@ -35,7 +36,7 @@ def kNN(XTrain, yTrain, XTest, yTest, robot, scaler):
     
     # define parameter grid
     paramGrid = {
-        'kneighborsregressor__n_neighbors': list(range(1, 31, 2)),
+        'kneighborsregressor__n_neighbors': list(range(1, 51, 1)),
         'kneighborsregressor__weights': ['uniform', 'distance'],
         'kneighborsregressor__p': [1, 2]
     }

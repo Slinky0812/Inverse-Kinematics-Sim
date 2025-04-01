@@ -1,6 +1,5 @@
 import pybullet as p
 import numpy as np
-from numpy.linalg import norm
 import time
 
 
@@ -36,7 +35,7 @@ def calculatePoseErrors(yPred, yTest, robot):
         predRot = np.array(predState[1]) # Orientation
         
         # Calculate position error (Euclidean distance)
-        positionError = norm(actualPos - predPos)
+        positionError = np.linalg.norm(actualPos - predPos)
         
         # Calculate orientation error (quaternion angular difference)
         dotProduct = np.clip(np.abs(np.dot(actualRot, predRot)), 0, 1)

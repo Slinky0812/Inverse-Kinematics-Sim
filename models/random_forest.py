@@ -4,10 +4,12 @@ from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-from generate.generate_data import calculatePoseErrors, testModel
+from generate.generate_data import calculatePoseErrors
+
+import time
 
 
-def randomForest(XTrain, yTrain, XTest, yTest, robot, scaler):
+def randomForest(XTrain, yTrain, XTest, yTest, robot):
 	"""
     Train and test a Random Forest model
 
@@ -26,10 +28,10 @@ def randomForest(XTrain, yTrain, XTest, yTest, robot, scaler):
         - trainingTime (float): Training time
         - testingTime (float): Testing time
         - r2 (float): R² score
+		- gridSearch.best_params_: Best parameters for the model
     """
 	# Create pipeline
 	rfPipe = make_pipeline(
-		scaler,
 		RandomForestRegressor()
 	)
 
@@ -56,8 +58,11 @@ def randomForest(XTrain, yTrain, XTest, yTest, robot, scaler):
 	trainingTime = gridSearch.cv_results_['mean_fit_time'][gridSearch.best_index_]
 	
 	# Test the best model
-	yPred, testingTime = testModel(XTest, bestRF, scaler)
-	
+	startTest = time.time()
+	yPred = bestRF.predict(XTest)
+	endTest = time.time()
+	testingTime = endTest - startTest
+
 	# Calculate metrics
 	mse = mean_squared_error(yTest, yPred)
 	mae = mean_absolute_error(yTest, yPred)

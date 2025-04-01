@@ -1,6 +1,6 @@
 # Neural Network model
 from sklearn.neural_network import MLPRegressor
-from sklearn.model_selection import RandomizedSearchCV
+from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
@@ -26,6 +26,7 @@ def neuralNetwork(XTrain, yTrain, XTest, yTest, robot, scaler):
         - trainingTime (float): Training time
         - testingTime (float): Testing time
         - r2 (float): R² score
+        - gridSearch.best_params_: Best parameters for the model
     """
     # Create pipeline
     nNPipe = make_pipeline(
@@ -53,7 +54,7 @@ def neuralNetwork(XTrain, yTrain, XTest, yTest, robot, scaler):
     }
 
     # Perform grid search
-    gridSearch = RandomizedSearchCV(
+    gridSearch = GridSearchCV(
         nNPipe,
         paramGrid,
         cv=3,  # Faster than default 5-fold
