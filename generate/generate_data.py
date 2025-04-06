@@ -3,6 +3,16 @@ import numpy as np
 import time
 
 
+def encodeAngles(jointAngles):
+    sin_vals = np.sin(jointAngles)
+    cos_vals = np.cos(jointAngles)
+    return np.hstack((sin_vals, cos_vals))  # Concatenate along feature axis
+
+
+def decodeAngles(sin_vals, cos_vals):
+    return np.arctan2(sin_vals, cos_vals)
+
+
 def calculatePoseErrors(yPred, yTest, robot):
     """
     Calculate position and orientation errors between predicted and target poses.
@@ -63,7 +73,9 @@ def testModel(XTest, model, scaler):
     """
     startTest = time.time()
     yPred = scaler.inverse_transform(model.predict(XTest))
+    # Decode angles to ensure equal weighting in distance calculations
+    yPredDecoded = decodeAngles(yPred[:, :7], yPred[:, 7:])
     endTest = time.time()
     testingTime = endTest - startTest
 
-    return yPred, testingTime
+    return yPredDecoded, testingTime

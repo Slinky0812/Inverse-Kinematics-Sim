@@ -20,11 +20,16 @@ def plotErrorData(errors, models):
     sVRErrors = np.array(errors[4])
     rFErrors = np.array(errors[5])
     gBErrors = np.array(errors[6])
-    gRErrors = np.array(errors[7])
-    bRErrors = np.array(errors[8])
-    lassoErrors = np.array(errors[9])
-    kRRErrors = np.array(errors[10])
+    # gRErrors = np.array(errors[7])
+    # bRErrors = np.array(errors[8])
+    # lassoErrors = np.array(errors[9])
+    # rRErrors = np.array(errors[10])
+    # kRRErrors = np.array(errors[11])
 
+    bRErrors = np.array(errors[7])
+    lassoErrors = np.array(errors[8])
+    rRErrors = np.array(errors[9])
+    kRRErrors = np.array(errors[10])
 
     # Separate position and orientation errors
     kNNPosErrors, kNNOriErrors = kNNErrors[:, 0], kNNErrors[:, 1]
@@ -34,23 +39,37 @@ def plotErrorData(errors, models):
     sVRPosErrors, sVROriErrors = sVRErrors[:, 0], sVRErrors[:, 1]
     rFPosErrors, rFOriErrors = rFErrors[:, 0], rFErrors[:, 1]
     gBPosErrors, gBOriErrors = gBErrors[:, 0], gBErrors[:, 1]
-    gRPosErrors, gROriErrors = gRErrors[:, 0], gRErrors[:, 1]
+    # gRPosErrors, gROriErrors = gRErrors[:, 0], gRErrors[:, 1]
     bRPosErrors, bROriErrors = bRErrors[:, 0], bRErrors[:, 1]
     lassoPosErrors, lassoOriErrors = lassoErrors[:, 0], lassoErrors[:, 1]
+    rRPosErrors, rROriErrors = rRErrors[:, 0], rRErrors[:, 1]
     kRRPosErrors, kRROriErrors = kRRErrors[:, 0], kRRErrors[:, 1]
 
 
     # Create lists of all error arrays
+    # modelPosErrors = [
+    #     kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors,
+    #     sVRPosErrors, rFPosErrors, gBPosErrors, gRPosErrors,
+    #     bRPosErrors, lassoPosErrors, rRPosErrors, kRRPosErrors
+    # ]
+    
+    # modelOriErrors = [
+    #     kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors,
+    #     sVROriErrors, rFOriErrors, gBOriErrors, gROriErrors,
+    #     bROriErrors, lassoOriErrors, rROriErrors, kRROriErrors
+    # ]
+
+
     modelPosErrors = [
         kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors,
-        sVRPosErrors, rFPosErrors, gBPosErrors, gRPosErrors,
-        bRPosErrors, lassoPosErrors, kRRPosErrors
+        sVRPosErrors, rFPosErrors, gBPosErrors,
+        bRPosErrors, lassoPosErrors, rRPosErrors, kRRPosErrors
     ]
     
     modelOriErrors = [
         kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors,
-        sVROriErrors, rFOriErrors, gBOriErrors, gROriErrors,
-        bROriErrors, lassoOriErrors, kRROriErrors
+        sVROriErrors, rFOriErrors, gBOriErrors,
+        bROriErrors, lassoOriErrors, rROriErrors, kRROriErrors
     ]
 
     # Plot position errors
@@ -296,5 +315,4 @@ def storeBestParams(bestParams, models):
     """
     with open('results/best_parameters.txt', 'w') as f:
         for model, param in zip(models, bestParams):
-            f.write(f"The model {model}'s best parameters are: {param}")
-            f.write("")
+            f.write(f"The model {model}'s best parameters are: {param}\n\n")

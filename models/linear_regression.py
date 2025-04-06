@@ -1,14 +1,12 @@
-# Linear Regression model
-from sklearn.linear_model import Ridge
+# Linear Regression/Bayesian Linear Regression models
+from sklearn.linear_model import LinearRegression, BayesianRidge
 from sklearn.pipeline import make_pipeline
-from sklearn.model_selection import GridSearchCV
-from sklearn.linear_model import BayesianRidge
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.multioutput import MultiOutputRegressor
-from sklearn.model_selection import RandomizedSearchCV
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from scipy.stats import loguniform
 
-from generate.generate_data import testModel, calculatePoseErrors
+from generate.generate_data import testModel, calculatePoseErrors, decodeAngles
 
 import numpy as np
 
@@ -37,18 +35,19 @@ def linearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     # Create pipeline
     lrPipe = make_pipeline(
         scaler,
-        Ridge(alpha=1.0, random_state=42)
+        LinearRegression()
     )
     
-    # Define parameter grid
+    # # Define parameter grid
     paramGrid = {
-        'ridge__alpha': np.logspace(-3, 3, 7)
+        'linearregression__fit_intercept': [True, False],
+        'linearregression__positive': [True, False],
     }
 
     # Perform grid search
     gridSearch = GridSearchCV(
-        lrPipe, 
-        paramGrid, 
+        lrPipe,
+        paramGrid,
         cv=3, 
         n_jobs=2,
         scoring='neg_mean_squared_error'
@@ -62,13 +61,19 @@ def linearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     # Test the best model
     yPred, testingTime = testModel(XTest, bestLR, scaler)
 
+    # Decode angles to ensure equal weighting in distance calculations
+    yTestDecode = decodeAngles(yTest[:, :7], yTest[:, 7:])
+
     # Calculate metrics
-    mse = mean_squared_error(yTest, yPred)
-    mae = mean_absolute_error(yTest, yPred)
-    r2 = r2_score(yTest, yPred)
+    mse = mean_squared_error(yTestDecode, yPred)
+    mae = mean_absolute_error(yTestDecode, yPred)
+    r2 = r2_score(yTestDecode, yPred)
 
     # Calculate pose errors
-    poseErrors = calculatePoseErrors(yPred, yTest, robot)
+    poseErrors = calculatePoseErrors(yPred, yTestDecode, robot)
+
+    print("Min pred:", np.min(yPred, axis=0))
+    print("Max pred:", np.max(yPred, axis=0))
     
     # Return results
     return poseErrors, mse, mae, trainingTime, testingTime, r2, gridSearch.best_params_
@@ -98,12 +103,7 @@ def bayesianLinearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     # Create pipeline
     pipeline = make_pipeline(
         scaler,
-        MultiOutputRegressor(
-            BayesianRidge(
-                compute_score=True,
-                verbose=True  # Show convergence progress
-            )
-        )
+        MultiOutputRegressor(BayesianRidge(compute_score=True, verbose=True))
     )
 
     # Create parameter grid
@@ -115,7 +115,7 @@ def bayesianLinearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     }
 
     # Perform randomized search 
-    search = GridSearchCV(
+    search = RandomizedSearchCV(
         pipeline,
         paramGrid,
         cv=3,
@@ -131,6 +131,9 @@ def bayesianLinearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     # Test the best model
     yPred, testingTime = testModel(XTest, bestBR, scaler)
 
+    # Decode angles to ensure equal weighting in distance calculations
+    yTest = decodeAngles(yTest[:, :7], yTest[:, 7:])
+
     # Calculate metrics
     mse = mean_squared_error(yTest, yPred)
     mae = mean_absolute_error(yTest, yPred)
@@ -138,6 +141,9 @@ def bayesianLinearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
 
     # Calculate pose errors
     pose_errors = calculatePoseErrors(yPred, yTest, robot)
+
+    print("Min pred:", np.min(yPred, axis=0))
+    print("Max pred:", np.max(yPred, axis=0))
     
     # Return results
     return pose_errors, mse, mae, trainingTime, testingTime, r2, search.best_params_

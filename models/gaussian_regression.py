@@ -5,7 +5,9 @@ from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-from generate.generate_data import calculatePoseErrors, testModel
+from generate.generate_data import calculatePoseErrors, testModel, decodeAngles
+
+import numpy as np
 
 
 def gaussianProcessRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
@@ -38,30 +40,35 @@ def gaussianProcessRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     
     # Define a list of candidate kernels
     kernel_options = [
-        ConstantKernel(1.0, constant_value_bounds=(1e-2, 1e2)) * 
-        RBF(length_scale=1.0, length_scale_bounds=(1e-2, 1e2)) + 
-        WhiteKernel(noise_level=1e-3, noise_level_bounds=(1e-2, 1e2)),  # RBF
+        # ConstantKernel(1.0, constant_value_bounds=(1e-2, 1e2)) * 
+        # RBF(length_scale=1.0, length_scale_bounds=(1e-2, 1e2)) + 
+        # WhiteKernel(noise_level=1e-3, noise_level_bounds=(1e-2, 1e2)),  # RBF
 
-        ConstantKernel(1.0, constant_value_bounds=(1e-2, 1e2)) * 
-        Matern(length_scale=1.0, length_scale_bounds=(1e-2, 1e2), nu=1.5) + 
-        WhiteKernel(noise_level=1e-3, noise_level_bounds=(1e-2, 1e2)),  # Matern
+        # ConstantKernel(1.0, constant_value_bounds=(1e-2, 1e2)) * 
+        # Matern(length_scale=1.0, length_scale_bounds=(1e-2, 1e2), nu=1.5) + 
+        # WhiteKernel(noise_level=1e-3, noise_level_bounds=(1e-2, 1e2)),  # Matern
 
-        ConstantKernel(1.0, constant_value_bounds=(1e-2, 1e2)) * 
-        RationalQuadratic(length_scale=1.0, alpha=1.0, length_scale_bounds=(1e-2, 1e2)) + 
-        WhiteKernel(noise_level=1e-3, noise_level_bounds=(1e-2, 1e2)),  # RationalQuadratic
+        # ConstantKernel(1.0, constant_value_bounds=(1e-2, 1e2)) * 
+        # RationalQuadratic(length_scale=1.0, alpha=1.0, length_scale_bounds=(1e-2, 1e2)) + 
+        # WhiteKernel(noise_level=1e-3, noise_level_bounds=(1e-2, 1e2)),  # RationalQuadratic
 
-        ConstantKernel(1.0, constant_value_bounds=(1e-2, 1e2)) * 
-        (RBF(length_scale=1.0, length_scale_bounds=(1e-2, 1e2)) + 
-        Matern(length_scale=1.0, length_scale_bounds=(1e-2, 1e2), nu=1.5)) + 
-        WhiteKernel(noise_level=1e-3, noise_level_bounds=(1e-2, 1e2))  # RBF + Matern
+        ConstantKernel(1e2) * 
+        RationalQuadratic(length_scale=1.0, alpha=1.0) + 
+        WhiteKernel(noise_level=0.001),  # RationalQuadratic
+
+
+        # ConstantKernel(1.0, constant_value_bounds=(1e-2, 1e2)) * 
+        # (RBF(length_scale=1.0, length_scale_bounds=(1e-2, 1e2)) + 
+        # Matern(length_scale=1.0, length_scale_bounds=(1e-2, 1e2), nu=1.5)) + 
+        # WhiteKernel(noise_level=1e-3, noise_level_bounds=(1e-2, 1e2))  # RBF + Matern
     ]
         
     # Define parameter grid
     paramGrid = {
-        "kernel": kernel_options,
-        "alpha": [1e-10, 1e-5, 1e-3, 1e-2, 1e-1],  # Test multiple alpha values
-        "n_restarts_optimizer": [5, 10, 20],  # Explore different optimizer restarts
-        "random_state": [42],  # Set random state for reproducibility
+        "gaussianprocessregressor__kernel": kernel_options,
+        "gaussianprocessregressor__alpha": [1e-5],  # Test multiple alpha values
+        "gaussianprocessregressor__n_restarts_optimizer": [10],  # Explore different optimizer restarts
+        "gaussianprocessregressor__random_state": [42],  # Set random state for reproducibility
     }
     
     # Perform grid search
@@ -80,6 +87,9 @@ def gaussianProcessRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     
     # Test the best model
     yPred, testingTime = testModel(XTest, bestGP, scaler)
+
+    # Decode angles to ensure equal weighting in distance calculations
+    yTest = decodeAngles(yTest[:, :7], yTest[:, 7:])
     
     # Calculate metrics
     mse = mean_squared_error(yTest, yPred)
@@ -88,6 +98,9 @@ def gaussianProcessRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     
     # Calculate pose errors
     poseErrors = calculatePoseErrors(yPred, yTest, robot)
+
+    print("Min pred:", np.min(yPred, axis=0))
+    print("Max pred:", np.max(yPred, axis=0))
 
     # Return results
     return poseErrors, mse, mae, trainingTime, testingTime, r2, randomSearch.best_params_

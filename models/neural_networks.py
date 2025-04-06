@@ -4,7 +4,9 @@ from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-from generate.generate_data import calculatePoseErrors, testModel
+from generate.generate_data import calculatePoseErrors, testModel, decodeAngles
+
+import numpy as np
 
 
 def neuralNetwork(XTrain, yTrain, XTest, yTest, robot, scaler):
@@ -37,21 +39,37 @@ def neuralNetwork(XTrain, yTrain, XTest, yTest, robot, scaler):
     # gridSearch = MLPRegressor(alpha=0.01, early_stopping=True, hidden_layer_sizes=(512, 256, 128), learning_rate='adaptive', max_iter=5000, n_iter_no_change=25, random_state=42, validation_fraction=0.15, activation='relu', solver='adam', warm_start=True)
     
     # Define Parameter grid
+    # paramGrid = {
+    #     'mlpregressor__hidden_layer_sizes': [
+    #         (256, 256), (512, 256, 128),  # Varying depths
+    #         (128, 128), (512, 512)
+    #     ],
+    #     'mlpregressor__activation': ['relu', 'tanh'],
+    #     'mlpregressor__solver': ['adam', 'sgd'],  # Test different solvers
+    #     'mlpregressor__max_iter': [5000],
+    #     'mlpregressor__early_stopping': [True],
+    #     'mlpregressor__validation_fraction': [0.15],  # Slightly more validation data
+    #     'mlpregressor__n_iter_no_change': [25],  # Longer patience
+    #     'mlpregressor__learning_rate': ['adaptive'],
+    #     'mlpregressor__alpha': [0.0001, 0.001, 0.01],
+    #     'mlpregressor__random_state': [42]
+    # }
+
     paramGrid = {
         'mlpregressor__hidden_layer_sizes': [
-            (256, 256), (512, 256, 128),  # Varying depths
-            (128, 128), (512, 512)
+            (512, 256, 128)  # Varying depths
         ],
-        'mlpregressor__activation': ['relu', 'tanh'],
-        'mlpregressor__solver': ['adam', 'sgd'],  # Test different solvers
+        'mlpregressor__activation': ['relu'],
+        'mlpregressor__solver': ['adam'],  # Test different solvers
         'mlpregressor__max_iter': [5000],
         'mlpregressor__early_stopping': [True],
         'mlpregressor__validation_fraction': [0.15],  # Slightly more validation data
         'mlpregressor__n_iter_no_change': [25],  # Longer patience
         'mlpregressor__learning_rate': ['adaptive'],
-        'mlpregressor__alpha': [0.0001, 0.001, 0.01],
+        'mlpregressor__alpha': [0.01],
         'mlpregressor__random_state': [42]
     }
+
 
     # Perform grid search
     gridSearch = GridSearchCV(
@@ -69,7 +87,9 @@ def neuralNetwork(XTrain, yTrain, XTest, yTest, robot, scaler):
 
     # Test the best model
     yPred, testingTime = testModel(XTest, bestNN, scaler)
-    # yPred, testingTime = testModel(XTest, gridSearch, scaler)
+
+    # Decode angles to ensure equal weighting in distance calculations
+    yTest = decodeAngles(yTest[:, :7], yTest[:, 7:])
 
     # Calculate metrics
     mse = mean_squared_error(yTest, yPred)
@@ -78,6 +98,9 @@ def neuralNetwork(XTrain, yTrain, XTest, yTest, robot, scaler):
 
     # Calculate pose errors
     poseErrors = calculatePoseErrors(yPred, yTest, robot)
+
+    print("Min pred:", np.min(yPred, axis=0))
+    print("Max pred:", np.max(yPred, axis=0))
 
     # Return results
     return poseErrors, mse, mae, trainingTime, testingTime, r2, gridSearch.get_params()

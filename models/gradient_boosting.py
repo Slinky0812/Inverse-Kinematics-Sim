@@ -5,9 +5,10 @@ from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
 from sklearn.multioutput import MultiOutputRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-from generate.generate_data import calculatePoseErrors
+from generate.generate_data import calculatePoseErrors, decodeAngles
 
 import time
+import numpy as np
 
 
 def gradientBoosting(XTrain, yTrain, XTest, yTest, robot):
@@ -37,15 +38,27 @@ def gradientBoosting(XTrain, yTrain, XTest, yTest, robot):
 	)
 
 	# Define parameter grid
+	# paramGrid = {
+    #     'multioutputregressor__estimator__n_estimators': list(range(10, 110, 10)),
+	#     'multioutputregressor__estimator__max_depth': [3, 5, 10, 20, 50, None],  # Reduce search space
+    #     'multioutputregressor__estimator__learning_rate': [0.001, 0.1, 0.01],
+	# 	'multioutputregressor__estimator__min_samples_split': [2, 5, 10],  # Split criteria
+	# 	'multioutputregressor__estimator__min_samples_leaf': [1, 5, 10],  # Min leaf size
+	#     'multioutputregressor__estimator__subsample': [0.5, 0.7, 1.0],  # Stochastic boosting
+    # 	'multioutputregressor__estimator__max_features': [None, 'sqrt', 'log2'],  # Feature selection
+    # 	'multioutputregressor__estimator__loss': ['squared_error', 'absolute_error', 'huber', 'quantile'],  # Different loss functions
+	# 	'multioutputregressor__estimator__random_state': [42],
+	# }
+
 	paramGrid = {
-        'multioutputregressor__estimator__n_estimators': list(range(10, 110, 10)),
-	    'multioutputregressor__estimator__max_depth': [3, 5, 10, 20, 50, None],  # Reduce search space
-        'multioutputregressor__estimator__learning_rate': list(range(0.001, 0.1, 0.001)),
-		'multioutputregressor__estimator__min_samples_split': [2, 5, 10],  # Split criteria
-		'multioutputregressor__estimator__min_samples_leaf': [1, 5, 10],  # Min leaf size
-	    'multioutputregressor__estimator__subsample': [0.5, 0.7, 1.0],  # Stochastic boosting
-    	'multioutputregressor__estimator__max_features': [None, 'sqrt', 'log2'],  # Feature selection
-    	'multioutputregressor__estimator__loss': ['squared_error', 'absolute_error', 'huber', 'quantile'],  # Different loss functions
+        'multioutputregressor__estimator__n_estimators': [90],
+	    'multioutputregressor__estimator__max_depth': [None],  # Reduce search space
+        'multioutputregressor__estimator__learning_rate': [0.1],
+		'multioutputregressor__estimator__min_samples_split': [5],  # Split criteria
+		'multioutputregressor__estimator__min_samples_leaf': [5],  # Min leaf size
+	    'multioutputregressor__estimator__subsample': [0.5],  # Stochastic boosting
+    	'multioutputregressor__estimator__max_features': ['log2'],  # Feature selection
+    	'multioutputregressor__estimator__loss': ['squared_error'],  # Different loss functions
 		'multioutputregressor__estimator__random_state': [42],
 	}
 
@@ -54,7 +67,7 @@ def gradientBoosting(XTrain, yTrain, XTest, yTest, robot):
 		gbPipe, 
 		paramGrid, 
 		cv=3, 
-		n_jobs=2,
+		n_jobs=-1,
 		scoring='neg_mean_squared_error', 
 	)
 	randomSearch.fit(XTrain, yTrain)
@@ -66,8 +79,13 @@ def gradientBoosting(XTrain, yTrain, XTest, yTest, robot):
 	# Test the best model
 	startTest = time.time()
 	yPred = bestGB.predict(XTest)
+	# Decode angles to ensure equal weighting in distance calculations
+	yPred = decodeAngles(yPred[:, :7], yPred[:, 7:])
 	endTest = time.time()
 	testingTime = endTest - startTest
+
+	# Decode angles to ensure equal weighting in distance calculations
+	yTest = decodeAngles(yTest[:, :7], yTest[:, 7:])
 
 	# Calculate metrics
 	mse = mean_squared_error(yTest, yPred)
@@ -76,6 +94,9 @@ def gradientBoosting(XTrain, yTrain, XTest, yTest, robot):
 	
 	# Calculate pose errors
 	poseErrors = calculatePoseErrors(yPred, yTest, robot)
+
+	print("Min pred:", np.min(yPred, axis=0))
+	print("Max pred:", np.max(yPred, axis=0))
 
 	# Return results
 	return poseErrors, mse, mae, trainingTime, testingTime, r2, randomSearch.best_params_

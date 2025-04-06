@@ -4,7 +4,9 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-from generate.generate_data import calculatePoseErrors, testModel
+from generate.generate_data import calculatePoseErrors, testModel, decodeAngles
+
+import numpy as np
 
 
 def kernelRidgeRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
@@ -57,6 +59,9 @@ def kernelRidgeRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     
     # Test the best model
     yPred, testingTime = testModel(XTest, bestKR, scaler)
+
+    # Decode angles to ensure equal weighting in distance calculations
+    yTest = decodeAngles(yTest[:, :7], yTest[:, 7:])
     
     # Calculate metrics
     mse = mean_squared_error(yTest, yPred)
@@ -65,6 +70,8 @@ def kernelRidgeRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
 
     # Calculate pose errors
     poseErrors = calculatePoseErrors(yPred, yTest, robot)
+    print("Min pred:", np.min(yPred, axis=0))
+    print("Max pred:", np.max(yPred, axis=0))
 
     # Return results
     return poseErrors, mse, mae, trainingTime, testingTime, r2, gridSearch.best_params_

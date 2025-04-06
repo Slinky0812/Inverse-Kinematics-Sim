@@ -4,9 +4,10 @@ from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-from generate.generate_data import calculatePoseErrors
+from generate.generate_data import calculatePoseErrors, decodeAngles
 
 import time
+import numpy as np
 
 
 def randomForest(XTrain, yTrain, XTest, yTest, robot):
@@ -60,8 +61,13 @@ def randomForest(XTrain, yTrain, XTest, yTest, robot):
 	# Test the best model
 	startTest = time.time()
 	yPred = bestRF.predict(XTest)
+	# Decode angles to ensure equal weighting in distance calculations
+	yPred = decodeAngles(yPred[:, :7], yPred[:, 7:])
 	endTest = time.time()
 	testingTime = endTest - startTest
+
+	# Decode angles to ensure equal weighting in distance calculations
+	yTest = decodeAngles(yTest[:, :7], yTest[:, 7:])
 
 	# Calculate metrics
 	mse = mean_squared_error(yTest, yPred)
@@ -70,6 +76,9 @@ def randomForest(XTrain, yTrain, XTest, yTest, robot):
 	
 	# Calculate pose errors
 	poseErrors = calculatePoseErrors(yPred, yTest, robot)
+
+	print("Min pred:", np.min(yPred, axis=0))
+	print("Max pred:", np.max(yPred, axis=0))
 
 	# Return results
 	return poseErrors, mse, mae, trainingTime, testingTime, r2, gridSearch.best_params_

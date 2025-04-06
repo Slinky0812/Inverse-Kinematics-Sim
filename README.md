@@ -13,4 +13,6 @@ To run this project, the command is:
 `python main.py`
 
 ## Credits
-The `pybullet_kinematics_dynamics_control` folder is a submodule from the following github repository: https://github.com/deepakraina99/pybullet-kinematics-dynamics-control
+The `pybullet_kinematics_dynamics_control` folder is a submodule from the following GitHub repository: https://github.com/deepakraina99/pybullet-kinematics-dynamics-control
+
+The `PandaRobot.jl` folder (found inside of the `urdf` folder) is a submodule from the following GitHub repository: https://github.com/StanfordASL/PandaRobot.jl.git
