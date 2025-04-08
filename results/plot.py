@@ -316,3 +316,19 @@ def storeBestParams(bestParams, models):
     with open('results/best_parameters.txt', 'w') as f:
         for model, param in zip(models, bestParams):
             f.write(f"The model {model}'s best parameters are: {param}\n\n")
+
+
+def storeMaxMinPredictions(maxPred, minPred, models):
+    """
+    Stores the maximum and minimum predictions for each model as a table in a CSV file
+    
+    Args:
+        - maxPred (array): List of the maximum predictions for each model
+        - minPred (array): List of the minimum predictions for each model
+        - models (array): List of model names  
+    """
+    df = pd.DataFrame()
+    df['Models'] = models
+    df['Max Predictions'] = maxPred
+    df['Min Predictions'] = minPred
+    df.to_csv('results/max_min_predictions.csv', index=False)

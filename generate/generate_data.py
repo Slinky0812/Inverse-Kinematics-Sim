@@ -4,12 +4,32 @@ import time
 
 
 def encodeAngles(jointAngles):
+    """
+    Encodes joint angles into sine and cosine values.
+
+    Args:
+        - jointAngles (np.ndarray): Joint angles of shape (numSamples, numJoints)
+    
+    Returns:
+        - np.hstack: Encoded angles of shape (numSamples, 2 * numJoints)
+    """
     sin_vals = np.sin(jointAngles)
     cos_vals = np.cos(jointAngles)
+
     return np.hstack((sin_vals, cos_vals))  # Concatenate along feature axis
 
 
 def decodeAngles(sin_vals, cos_vals):
+    """
+    Decodes sine and cosine values back into joint angles.
+    
+    Args:
+        - sin_vals (np.ndarray): Sine values of shape (numSamples, numJoints)
+        - cos_vals (np.ndarray): Cosine values of shape (numSamples, numJoints)
+
+    Returns:
+        - np.arctan2: Decoded angles of shape (numSamples, numJoints)
+    """
     return np.arctan2(sin_vals, cos_vals)
 
 

@@ -4,6 +4,8 @@ from sklearn.gaussian_process.kernels import RBF, WhiteKernel, ConstantKernel, R
 from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from sklearn.preprocessing import StandardScaler
+
 
 from generate.generate_data import calculatePoseErrors, testModel, decodeAngles
 
@@ -34,7 +36,7 @@ def gaussianProcessRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
 
     # Create pipeline
     gpPipe = make_pipeline(
-        scaler,
+        StandardScaler(),
         GaussianProcessRegressor()
     )
     
@@ -67,7 +69,7 @@ def gaussianProcessRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     paramGrid = {
         "gaussianprocessregressor__kernel": kernel_options,
         "gaussianprocessregressor__alpha": [1e-5],  # Test multiple alpha values
-        "gaussianprocessregressor__n_restarts_optimizer": [10],  # Explore different optimizer restarts
+        "gaussianprocessregressor__n_restarts_optimizer": [2],  # Explore different optimizer restarts
         "gaussianprocessregressor__random_state": [42],  # Set random state for reproducibility
     }
     
@@ -76,7 +78,7 @@ def gaussianProcessRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
         gpPipe,
         paramGrid,
         cv=3,
-        n_jobs=2,
+        n_jobs=-1,
         scoring='neg_mean_squared_error',
     )
     randomSearch.fit(XTrain, yTrain)
@@ -97,10 +99,18 @@ def gaussianProcessRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     r2 = r2_score(yTest, yPred)
     
     # Calculate pose errors
-    poseErrors = calculatePoseErrors(yPred, yTest, robot)
+    # poseErrors = calculatePoseErrors(yPred, yTest, robot)
+    poseErrors = np.zeros((yPred.shape[0], 6))
 
-    print("Min pred:", np.min(yPred, axis=0))
-    print("Max pred:", np.max(yPred, axis=0))
+    yPredTrain = scaler.inverse_transform(gpPipe.predict(XTrain))
+    yPredTrainDecode = decodeAngles(yPredTrain[:, :7], yPredTrain[:, 7:])
+    minPredTrain = np.min(yPredTrainDecode, axis=0)
+    maxPredTrain = np.max(yPredTrainDecode, axis=0)
+    print("Training set min:", minPredTrain)
+    print("Training set max:", maxPredTrain)
+
+    maxPred = np.max(yPred, axis=0)
+    minPred = np.min(yPred, axis=0)
 
     # Return results
-    return poseErrors, mse, mae, trainingTime, testingTime, r2, randomSearch.best_params_
+    return poseErrors, mse, mae, trainingTime, testingTime, r2, randomSearch.best_params_, maxPred, minPred

@@ -3,6 +3,7 @@ from sklearn.linear_model import Lasso
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from sklearn.preprocessing import StandardScaler
 
 from generate.generate_data import calculatePoseErrors, testModel, decodeAngles
 
@@ -32,7 +33,7 @@ def lassoRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     """
     # Create pipeline
     lassoPipe = make_pipeline(
-        scaler,
+        StandardScaler(),
         Lasso(max_iter=1000, random_state=42)
     )
 
@@ -46,7 +47,7 @@ def lassoRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
         lassoPipe, 
         paramGrid, 
         cv=3, 
-        n_jobs=2, 
+        n_jobs=-1, 
         scoring='neg_mean_squared_error'
     )
     gridSearch.fit(XTrain, yTrain)
@@ -67,10 +68,19 @@ def lassoRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     r2 = r2_score(yTest, yPred)
 
     # Calculate pose errors
-    poseErrors = calculatePoseErrors(yPred, yTest, robot)
+    # poseErrors = calculatePoseErrors(yPred, yTest, robot)
+    poseErrors = np.zeros((yPred.shape[0], 6))
 
-    print("Min pred:", np.min(yPred, axis=0))
-    print("Max pred:", np.max(yPred, axis=0))
+    yPredTrain = scaler.inverse_transform(bestLasso.predict(XTrain))
+    yPredTrainDecode = decodeAngles(yPredTrain[:, :7], yPredTrain[:, 7:])
+    minPredTrain = np.min(yPredTrainDecode, axis=0)
+    maxPredTrain = np.max(yPredTrainDecode, axis=0)
+    print("Training set min:", minPredTrain)
+    print("Training set max:", maxPredTrain)
+
+
+    maxPred = np.max(yPred, axis=0)
+    minPred = np.min(yPred, axis=0)
 
     # Return results
-    return poseErrors, mse, mae, trainingTime, testingTime, r2, gridSearch.best_params_
+    return poseErrors, mse, mae, trainingTime, testingTime, r2, gridSearch.best_params_, maxPred, minPred

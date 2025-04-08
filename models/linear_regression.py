@@ -5,6 +5,7 @@ from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.multioutput import MultiOutputRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from scipy.stats import loguniform
+from sklearn.preprocessing import StandardScaler
 
 from generate.generate_data import testModel, calculatePoseErrors, decodeAngles
 
@@ -34,7 +35,7 @@ def linearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     """
     # Create pipeline
     lrPipe = make_pipeline(
-        scaler,
+        StandardScaler(),
         LinearRegression()
     )
     
@@ -49,7 +50,7 @@ def linearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
         lrPipe,
         paramGrid,
         cv=3, 
-        n_jobs=2,
+        n_jobs=-1,
         scoring='neg_mean_squared_error'
     )
     gridSearch.fit(XTrain, yTrain)
@@ -70,13 +71,21 @@ def linearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     r2 = r2_score(yTestDecode, yPred)
 
     # Calculate pose errors
-    poseErrors = calculatePoseErrors(yPred, yTestDecode, robot)
+    # poseErrors = calculatePoseErrors(yPred, yTestDecode, robot)
+    poseErrors = np.zeros((yPred.shape[0], 6))
 
-    print("Min pred:", np.min(yPred, axis=0))
-    print("Max pred:", np.max(yPred, axis=0))
-    
+    yPredTrain = scaler.inverse_transform(bestLR.predict(XTrain))
+    yPredTrainDecode = decodeAngles(yPredTrain[:, :7], yPredTrain[:, 7:])
+    minPredTrain = np.min(yPredTrainDecode, axis=0)
+    maxPredTrain = np.max(yPredTrainDecode, axis=0)
+    print("Training set min:", minPredTrain)
+    print("Training set max:", maxPredTrain)
+
+    maxPred = np.max(yPred, axis=0)
+    minPred = np.min(yPred, axis=0)
+
     # Return results
-    return poseErrors, mse, mae, trainingTime, testingTime, r2, gridSearch.best_params_
+    return poseErrors, mse, mae, trainingTime, testingTime, r2, gridSearch.best_params_, maxPred, minPred
 
 
 def bayesianLinearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
@@ -120,7 +129,7 @@ def bayesianLinearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
         paramGrid,
         cv=3,
         scoring='neg_mean_squared_error',
-        n_jobs=2,
+        n_jobs=-1,
     )
     search.fit(XTrain, yTrain)
 
@@ -140,10 +149,18 @@ def bayesianLinearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     r2 = r2_score(yTest, yPred)
 
     # Calculate pose errors
-    pose_errors = calculatePoseErrors(yPred, yTest, robot)
+    # pose_errors = calculatePoseErrors(yPred, yTest, robot)
+    poseErrors = np.zeros((yPred.shape[0], 6))
 
-    print("Min pred:", np.min(yPred, axis=0))
-    print("Max pred:", np.max(yPred, axis=0))
+    yPredTrain = scaler.inverse_transform(bestBR.predict(XTrain))
+    yPredTrainDecode = decodeAngles(yPredTrain[:, :7], yPredTrain[:, 7:])
+    minPredTrain = np.min(yPredTrainDecode, axis=0)
+    maxPredTrain = np.max(yPredTrainDecode, axis=0)
+    print("Training set min:", minPredTrain)
+    print("Training set max:", maxPredTrain)
+
+    maxPred = np.max(yPred, axis=0)
+    minPred = np.min(yPred, axis=0)
     
     # Return results
-    return pose_errors, mse, mae, trainingTime, testingTime, r2, search.best_params_
+    return poseErrors, mse, mae, trainingTime, testingTime, r2, search.best_params_, maxPred, minPred
