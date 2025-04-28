@@ -1,3 +1,4 @@
+# Decision Tree Model
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import make_pipeline
@@ -74,13 +75,9 @@ def decisionTree(XTrain, yTrain, XTest, yTest, robot):
     r2 = r2_score(yTest, yPred)
 
     # Pose errors
-    # poseErrors = calculatePoseErrors(yPred, yTest, robot)
-    poseErrors = np.zeros((yPred.shape[0], 6))
-    
-    minPred = np.min(yPred, axis=0)
-    maxPred = np.max(yPred, axis=0)
+    poseErrors = calculatePoseErrors(yPred, yTest, robot)
 
-    # perform fitting for the training set
+    # VALIDATION - Perform fitting on the training set
     yPredTrain = bestDT.predict(XTrain)
     yPredTrainDecode = decodeAngles(yPredTrain[:, :7], yPredTrain[:, 7:])
     minPredTrain = np.min(yPredTrainDecode, axis=0)
@@ -89,4 +86,4 @@ def decisionTree(XTrain, yTrain, XTest, yTest, robot):
     print("Training set max:", maxPredTrain)
 
     # Return results
-    return poseErrors, mse, mae, trainingTime, testingTime, r2, gridSearch.best_params_, maxPred, minPred
+    return poseErrors, mse, mae, trainingTime, testingTime, r2, gridSearch.best_params_

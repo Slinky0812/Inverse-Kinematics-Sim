@@ -1,4 +1,4 @@
-# k-Nearest Neighbors model
+# k-Nearest Neighbors Model
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import make_pipeline
@@ -62,8 +62,10 @@ def kNN(XTrain, yTrain, XTest, yTest, robot, scaler):
     # Test the best model
     yPred, testingTime = testModel(XTest, bestKNN, scaler)
 
+    # Inverse transform the actual values to get them back to the original scale
+    yTestScaled = scaler.inverse_transform(yTest)
     # Decode angles to ensure equal weighting in distance calculations
-    yTestDecode = decodeAngles(yTest[:, :7], yTest[:, 7:])
+    yTestDecode = decodeAngles(yTestScaled[:, :7], yTestScaled[:, 7:])
 
     # Calculate metrics
     mse = mean_squared_error(yTestDecode, yPred)
@@ -71,13 +73,9 @@ def kNN(XTrain, yTrain, XTest, yTest, robot, scaler):
     r2 = r2_score(yTestDecode, yPred)
 
     # Pose errors
-    # poseErrors = calculatePoseErrors(yPred, yTestDecode, robot)
-    poseErrors = np.zeros((yPred.shape[0], 6))
+    poseErrors = calculatePoseErrors(yPred, yTestDecode, robot)
 
-    maxPred = np.max(yPred, axis=0)
-    minPred = np.min(yPred, axis=0)
-
-    # perform fitting for the training set
+    # VALIDATION - Perform fitting on the training set
     yPredTrain = scaler.inverse_transform(bestKNN.predict(XTrain))
     yPredTrainDecode = decodeAngles(yPredTrain[:, :7], yPredTrain[:, 7:])
     minPredTrain = np.min(yPredTrainDecode, axis=0)
@@ -86,4 +84,4 @@ def kNN(XTrain, yTrain, XTest, yTest, robot, scaler):
     print("Training set max:", maxPredTrain)
 
     # Return results
-    return poseErrors, mse, mae, trainingTime, testingTime, r2, gridSearch.best_params_, maxPred, minPred
+    return poseErrors, mse, mae, trainingTime, testingTime, r2, gridSearch.best_params_

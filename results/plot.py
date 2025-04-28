@@ -20,16 +20,11 @@ def plotErrorData(errors, models):
     sVRErrors = np.array(errors[4])
     rFErrors = np.array(errors[5])
     gBErrors = np.array(errors[6])
-    # gRErrors = np.array(errors[7])
-    # bRErrors = np.array(errors[8])
-    # lassoErrors = np.array(errors[9])
-    # rRErrors = np.array(errors[10])
-    # kRRErrors = np.array(errors[11])
-
-    bRErrors = np.array(errors[7])
-    lassoErrors = np.array(errors[8])
-    rRErrors = np.array(errors[9])
-    kRRErrors = np.array(errors[10])
+    gRErrors = np.array(errors[7])
+    bRErrors = np.array(errors[8])
+    lassoErrors = np.array(errors[9])
+    rRErrors = np.array(errors[10])
+    kRRErrors = np.array(errors[11])
 
     # Separate position and orientation errors
     kNNPosErrors, kNNOriErrors = kNNErrors[:, 0], kNNErrors[:, 1]
@@ -39,36 +34,22 @@ def plotErrorData(errors, models):
     sVRPosErrors, sVROriErrors = sVRErrors[:, 0], sVRErrors[:, 1]
     rFPosErrors, rFOriErrors = rFErrors[:, 0], rFErrors[:, 1]
     gBPosErrors, gBOriErrors = gBErrors[:, 0], gBErrors[:, 1]
-    # gRPosErrors, gROriErrors = gRErrors[:, 0], gRErrors[:, 1]
+    gRPosErrors, gROriErrors = gRErrors[:, 0], gRErrors[:, 1]
     bRPosErrors, bROriErrors = bRErrors[:, 0], bRErrors[:, 1]
     lassoPosErrors, lassoOriErrors = lassoErrors[:, 0], lassoErrors[:, 1]
     rRPosErrors, rROriErrors = rRErrors[:, 0], rRErrors[:, 1]
     kRRPosErrors, kRROriErrors = kRRErrors[:, 0], kRRErrors[:, 1]
 
-
     # Create lists of all error arrays
-    # modelPosErrors = [
-    #     kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors,
-    #     sVRPosErrors, rFPosErrors, gBPosErrors, gRPosErrors,
-    #     bRPosErrors, lassoPosErrors, rRPosErrors, kRRPosErrors
-    # ]
-    
-    # modelOriErrors = [
-    #     kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors,
-    #     sVROriErrors, rFOriErrors, gBOriErrors, gROriErrors,
-    #     bROriErrors, lassoOriErrors, rROriErrors, kRROriErrors
-    # ]
-
-
     modelPosErrors = [
         kNNPosErrors, lRPosErrors, nNPosErrors, dTPosErrors,
-        sVRPosErrors, rFPosErrors, gBPosErrors,
+        sVRPosErrors, rFPosErrors, gBPosErrors, gRPosErrors,
         bRPosErrors, lassoPosErrors, rRPosErrors, kRRPosErrors
     ]
     
     modelOriErrors = [
         kNNOriErrors, lROriErrors, nNOriErrors, dTOriErrors,
-        sVROriErrors, rFOriErrors, gBOriErrors,
+        sVROriErrors, rFOriErrors, gBOriErrors, gROriErrors,
         bROriErrors, lassoOriErrors, rROriErrors, kRROriErrors
     ]
 
@@ -77,9 +58,6 @@ def plotErrorData(errors, models):
     
     # Plot orientation errors
     orientationErrorsPlot(modelOriErrors, models)
-
-    # Plot position vs orientation errors
-    positionVsOrientation(modelPosErrors, modelOriErrors, models)
 
 
 def positionErrorsPlot(modelPosErrors, models):
@@ -95,15 +73,15 @@ def positionErrorsPlot(modelPosErrors, models):
     modelLabels = np.repeat(models, [len(arr) for arr in modelPosErrors])
     
     df = pd.DataFrame({
-        "Model": modelLabels,
-        "Position Error": errorsFlat
+        "Models": modelLabels,
+        "Position Error (m)": errorsFlat
     })
     
     # Plot violin plot
-    plt.figure(figsize=(30, 6))
-    sns.violinplot(x="Model", y="Position Error", data=df)
+    plt.figure(figsize=(24, 6))
+    sns.violinplot(x="Models", y="Position Error (m)", data=df)
 
-    plt.title("Position Error Comparison (Violin Plot)")
+    plt.title("Position Error Comparison")
     plt.grid(True, linestyle="--", alpha=0.6)
 
     # Save plot
@@ -123,58 +101,19 @@ def orientationErrorsPlot(modelOriErrors, models):
     model_labels = np.repeat(models, [len(arr) for arr in modelOriErrors])
     
     df = pd.DataFrame({
-        "Model": model_labels,
-        "Orientation Error": errors_flat
+        "Models": model_labels,
+        "Orientation Error (radians)": errors_flat
     })
 
     # Plot violin plot
-    plt.figure(figsize=(30, 6))
-    sns.violinplot(x="Model", y="Orientation Error", data=df)
+    plt.figure(figsize=(24, 6))
+    sns.violinplot(x="Models", y="Orientation Error (radians)", data=df)
 
-    plt.title("Orientation Error Comparison (Violin Plot)")
+    plt.title("Orientation Error Comparison")
     plt.grid(True, linestyle="--", alpha=0.6)
 
     # Save plot
     plt.savefig("results/orientation_error_comparison.png")
-
-
-def positionVsOrientation(modelPosErrors, modelOriErrors, models):
-    """
-    Plot position error vs orientation error for each model as a scatter plot
-
-    Args:
-        - modelPosErrors (np.array): List of position errors for each model
-        - modelOriErrors (np.array): List of orientation errors for each model
-        - models (array): List of model names
-    """
-    # Loop through each model
-    for i, model in enumerate(models):
-        plt.figure(figsize=(15, 10))
-
-        # Scatter plot
-        plt.scatter(modelPosErrors[i], modelOriErrors[i], s=100)
-
-        # Fit a line of best fit (1st degree polynomial)
-        coefficients = np.polyfit(modelPosErrors[i], modelOriErrors[i], 1)
-        trendline = np.poly1d(coefficients)
-
-        # Plot the line of best fit
-        plt.plot(
-            modelPosErrors[i], 
-            trendline(modelPosErrors[i]), 
-            color='red',  
-            label='Line of Best Fit'
-        )
-
-        # Labels and title
-        plt.xlabel("Position Error")
-        plt.ylabel("Orientation Error")
-        plt.title(f"Position vs. Orientation Errors for {model} Models")
-        plt.legend()
-        plt.grid(True)
-
-        # save plot
-        plt.savefig(f'results/{model}_position_vs_orientation.png')
 
 
 def plotMSEData(mseValues, models):
@@ -186,21 +125,21 @@ def plotMSEData(mseValues, models):
         - mseValues (array): List of Mean Squared Errors for each model
         - models (array): List of model names
     """
-    plt.figure(figsize=(35, 6))
+    plt.figure(figsize=(24, 6))
 
     # Create bar chart
     plt.bar(models, mseValues)
     
     # Labels and title
     plt.xlabel("Models")
-    plt.ylabel("Mean Squared Error")
+    plt.ylabel("Mean Squared Error (m²)")
     plt.title("MSE Comparison of Different Models")
     plt.grid(True, linestyle="--", alpha=0.6)
     
     # Save plot
     plt.savefig("results/mse_data_comparison.png")
 
-    # plot table
+    # Plot table
     df = pd.DataFrame()
     df['Models'] = models
     df['MSE'] = mseValues
@@ -216,21 +155,21 @@ def plotMAEData(maeValues, models):
         - maeValues (array): List of Mean Absolute Errors for each model
         - models (array): List of model names
     """
-    plt.figure(figsize=(35, 6))
+    plt.figure(figsize=(24, 6))
         
     # Create bar chart
     plt.bar(models, maeValues)
     
     # Labels and title
     plt.xlabel("Models")
-    plt.ylabel("Mean Absolute Error")
+    plt.ylabel("Mean Absolute Error (m)")
     plt.title("MAE Comparison of Different Models")
     plt.grid(True, linestyle="--", alpha=0.6)
 
     # Save plot
     plt.savefig("results/mae_data_comparison.png")
 
-    # plot table
+    # Plot table
     df = pd.DataFrame()
     df['Models'] = models
     df['MAE'] = maeValues
@@ -248,7 +187,7 @@ def plotTimings(trainingTimes, testingTimes, models):
         - testingTimes (array): List of testing times for each model
         - models (array): List of model names
     """
-    plt.figure(figsize=(35, 6))
+    plt.figure(figsize=(24, 6))
     
     x = np.arange(len(models))  # X-axis positions
 
@@ -267,7 +206,7 @@ def plotTimings(trainingTimes, testingTimes, models):
     # Save plot
     plt.savefig("results/timings_comparison.png")
 
-    # plot table
+    # Plot table
     df = pd.DataFrame()
     df['Models'] = models
     df['Training Times'] = trainingTimes
@@ -284,7 +223,7 @@ def plotR2Score(r2Scores, models):
         - r2Scores (array): List of R² scores for each model
         - models (array): List of model names
     """
-    plt.figure(figsize=(35, 6))
+    plt.figure(figsize=(24, 6))
 
     # Create bar chart 
     plt.bar(models, r2Scores)
@@ -298,7 +237,7 @@ def plotR2Score(r2Scores, models):
     # Save plot
     plt.savefig("results/r2_data_comparison.png")
 
-    # plot table
+    # Plot table
     df = pd.DataFrame()
     df['Models'] = models
     df['R²'] = r2Scores
@@ -313,22 +252,8 @@ def storeBestParams(bestParams, models):
         - bestParams (array): List of the best parameters for each model
         - models (array): List of model names  
     """
+    # Open file in write mode
     with open('results/best_parameters.txt', 'w') as f:
+        # Loop through each model and its best parameters
         for model, param in zip(models, bestParams):
             f.write(f"The model {model}'s best parameters are: {param}\n\n")
-
-
-def storeMaxMinPredictions(maxPred, minPred, models):
-    """
-    Stores the maximum and minimum predictions for each model as a table in a CSV file
-    
-    Args:
-        - maxPred (array): List of the maximum predictions for each model
-        - minPred (array): List of the minimum predictions for each model
-        - models (array): List of model names  
-    """
-    df = pd.DataFrame()
-    df['Models'] = models
-    df['Max Predictions'] = maxPred
-    df['Min Predictions'] = minPred
-    df.to_csv('results/max_min_predictions.csv', index=False)

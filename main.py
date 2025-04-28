@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 from pybullet_kinematics_dynamics_control.pybullet_controller import RobotController
-from results.plot import plotErrorData, plotMSEData, plotMAEData, plotTimings, plotR2Score, storeBestParams, storeMaxMinPredictions
+from results.plot import plotErrorData, plotMSEData, plotMAEData, plotTimings, plotR2Score, storeBestParams
 
 from generate.generate_data import encodeAngles, decodeAngles
 
@@ -54,12 +54,7 @@ def main():
     # Split data into training and testing sets (80% training, 20% testing)
     XTrain, XTest, yTrain, yTest = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    # Print the min and max values of the joint angles in the testing set
-    yTestDecoded = decodeAngles(y[:, :7], y[:, 7:])
-    print("")
-    print("Min y (test):", np.min(yTestDecoded, axis=0))
-    print("Max y (test):", np.max(yTestDecoded, axis=0))
-
+    # VALIDATION - Print the min and max values of the joint angles in the training set
     yTrainDecoded = decodeAngles(yTrain[:, :7], yTrain[:, 7:])
     print("")
     print("Min y (train):", np.min(yTrainDecoded, axis=0))
@@ -80,14 +75,12 @@ def main():
     testingTimes = []
     r2Scores = []
     bestParams = []
-    maxPreds = []
-    minPreds = []
 
     print("")
     print("kNN")
-    # train the model using k-Nearest Neighbors
-    kNNErrors, kNNmse, kNNmae, kNNTrainingTime, kNNTestingTime, kNNr2, kNNBestParams, kNNMaxPred, kNNMinPred = kNN(XTrain, yTrainScaled, XTest, yTestScaled, robot, yScaler)
-    models.append("k-Nearest Neighbours")
+    # Solve the IK problem using k-Nearest Neighbors
+    kNNErrors, kNNmse, kNNmae, kNNTrainingTime, kNNTestingTime, kNNr2, kNNBestParams = kNN(XTrain, yTrainScaled, XTest, yTestScaled, robot, yScaler)
+    models.append("kNN")
     errors.append(kNNErrors)
     mseValues.append(kNNmse)
     maeValues.append(kNNmae)
@@ -95,13 +88,11 @@ def main():
     testingTimes.append(kNNTestingTime)
     r2Scores.append(kNNr2)
     bestParams.append(kNNBestParams)
-    maxPreds.append(kNNMaxPred)
-    minPreds.append(kNNMinPred)
     
     print("")
     print("Linear Regression")
-    # train the model using Linear Regression
-    lRErrors, lRmse, lRmae, lRTrainingTime, lRTestingTime, lRr2, lRBestParams, lRMaxPred, lRMinPred = linearRegression(XTrain, yTrainScaled, XTest, yTestScaled, robot, yScaler)
+    # Solve the IK problem using Linear Regression
+    lRErrors, lRmse, lRmae, lRTrainingTime, lRTestingTime, lRr2, lRBestParams = linearRegression(XTrain, yTrainScaled, XTest, yTestScaled, robot, yScaler)
     models.append("Linear Regression")
     errors.append(lRErrors)
     mseValues.append(lRmse)
@@ -110,13 +101,11 @@ def main():
     testingTimes.append(lRTestingTime)
     r2Scores.append(lRr2)
     bestParams.append(lRBestParams)
-    maxPreds.append(lRMaxPred)
-    minPreds.append(lRMinPred)
     
     print("")
     print("Neural Networks")
-    # train the model using Neural Networks
-    nNErrors, nNmse, nNmae, nNTrainingTime, nNTestingTime, nNr2, nNBestParams, nNMaxPred, nNMinPred = neuralNetwork(XTrain, yTrainScaled, XTest, yTestScaled, robot, yScaler)
+    # Solve the IK problem using Neural Networks
+    nNErrors, nNmse, nNmae, nNTrainingTime, nNTestingTime, nNr2, nNBestParams = neuralNetwork(XTrain, yTrainScaled, XTest, yTestScaled, robot, yScaler)
     models.append("Neural Networks")
     errors.append(nNErrors)
     mseValues.append(nNmse)
@@ -125,13 +114,11 @@ def main():
     testingTimes.append(nNTestingTime)
     r2Scores.append(nNr2)
     bestParams.append(nNBestParams)
-    maxPreds.append(nNMaxPred)
-    minPreds.append(nNMinPred)
 
     print("")
     print("Decision Trees")
-    # train the model using Decision Trees
-    dTErrors, dTmse, dTmae, dTTrainingTime, dTTestingTime, dTr2, dTBestParams, dTMaxPred, dTMinPred = decisionTree(XTrain, yTrain, XTest, yTest, robot)
+    # Solve the IK problem using Decision Trees
+    dTErrors, dTmse, dTmae, dTTrainingTime, dTTestingTime, dTr2, dTBestParams = decisionTree(XTrain, yTrain, XTest, yTest, robot)
     models.append("Decision Trees")
     errors.append(dTErrors)
     mseValues.append(dTmse)
@@ -140,14 +127,12 @@ def main():
     testingTimes.append(dTTestingTime)
     r2Scores.append(dTr2)
     bestParams.append(dTBestParams)
-    maxPreds.append(dTMaxPred)
-    minPreds.append(dTMinPred)
 
     print("")
     print("Support Vector Regression")
-    # train the model using Support Vector Regression
-    sVRErrors, sVRmse, sVRmae, sVRTrainingTime, sVRTestingTime, sVRr2, sVRBestParams, sVRMaxPred, sVRMinPred = supportVectorRegression(XTrain, yTrainScaled, XTest, yTestScaled, robot, yScaler)
-    models.append("Support Vector Regression")
+    # Solve the IK problem using Support Vector Regression
+    sVRErrors, sVRmse, sVRmae, sVRTrainingTime, sVRTestingTime, sVRr2, sVRBestParams = supportVectorRegression(XTrain, yTrainScaled, XTest, yTestScaled, robot, yScaler)
+    models.append("SVR")
     errors.append(sVRErrors)
     mseValues.append(sVRmse)
     maeValues.append(sVRmae)
@@ -155,13 +140,11 @@ def main():
     testingTimes.append(sVRTestingTime)
     r2Scores.append(sVRr2)
     bestParams.append(sVRBestParams)
-    maxPreds.append(sVRMaxPred)
-    minPreds.append(sVRMinPred)
 
     print("")
     print("Random Forest")
-    # train the model using Random Forest
-    rFErrors, rFmse, rFmae, rFTrainingTime, rFTestingTime, rFr2, rFBestParams, rFMaxPred, rFMinPred = randomForest(XTrain, yTrain, XTest, yTest, robot)
+    # Solve the IK problem using Random Forest
+    rFErrors, rFmse, rFmae, rFTrainingTime, rFTestingTime, rFr2, rFBestParams = randomForest(XTrain, yTrain, XTest, yTest, robot)
     models.append("Random Forest")
     errors.append(rFErrors)
     mseValues.append(rFmse)
@@ -170,13 +153,11 @@ def main():
     testingTimes.append(rFTestingTime)
     r2Scores.append(rFr2)
     bestParams.append(rFBestParams)
-    maxPreds.append(rFMaxPred)
-    minPreds.append(rFMinPred)
 
     print("")
     print("Gradient Boosting")
-    # train the model using Gradient Boosting
-    gBErrors, gBmse, gBmae, gBTrainingTime, gBTestingTime, gBr2, gBBestParams, gBMaxPred, gBMinPred = gradientBoosting(XTrain, yTrain, XTest, yTest, robot)
+    # Solve the IK problem using Gradient Boosting
+    gBErrors, gBmse, gBmae, gBTrainingTime, gBTestingTime, gBr2, gBBestParams = gradientBoosting(XTrain, yTrain, XTest, yTest, robot)
     models.append("Gradient Boosting")
     errors.append(gBErrors)
     mseValues.append(gBmse)
@@ -185,14 +166,12 @@ def main():
     testingTimes.append(gBTestingTime)
     r2Scores.append(gBr2)
     bestParams.append(gBBestParams)
-    maxPreds.append(gBMaxPred)
-    minPreds.append(gBMinPred)
 
     print("")
     print("Gaussian Process Regression")
-    # train the model using Gaussian Process Regression
-    gRErrors, gRmse, gRmae, gRTrainingTime, gRTestingTime, gRr2, gRBestParams, gRMaxPred, gRMinPred = gaussianProcessRegression(XTrain, yTrainScaled, XTest, yTestScaled, robot, yScaler)
-    models.append("Gaussian Process Regression")
+    # Solve the IK problem using Gaussian Process Regression
+    gRErrors, gRmse, gRmae, gRTrainingTime, gRTestingTime, gRr2, gRBestParams = gaussianProcessRegression(XTrain, yTrainScaled, XTest, yTestScaled, robot, yScaler)
+    models.append("GPR")
     errors.append(gRErrors)
     mseValues.append(gRmse)
     maeValues.append(gRmae)
@@ -200,14 +179,12 @@ def main():
     testingTimes.append(gRTestingTime)
     r2Scores.append(gRr2)
     bestParams.append(gRBestParams)
-    maxPreds.append(gRMaxPred)
-    minPreds.append(gRMinPred)
 
     print("")
     print("Bayesian Linear Regression")
-    # train the model using Bayesian Linear Regression
-    bRErrors, bRmse, bRmae, bRTrainingTime, bRTestingTime, bRr2, bRBestParams, bRMaxPred, bRMinPred = bayesianLinearRegression(XTrain, yTrainScaled, XTest, yTestScaled, robot, yScaler)
-    models.append("Bayesian Linear Regression")
+    # Solve the IK problem using Bayesian Linear Regression
+    bRErrors, bRmse, bRmae, bRTrainingTime, bRTestingTime, bRr2, bRBestParams = bayesianLinearRegression(XTrain, yTrainScaled, XTest, yTestScaled, robot, yScaler)
+    models.append("BLR")
     errors.append(bRErrors)
     mseValues.append(bRmse)
     maeValues.append(bRmae)
@@ -215,13 +192,11 @@ def main():
     testingTimes.append(bRTestingTime)
     r2Scores.append(bRr2)
     bestParams.append(bRBestParams)
-    maxPreds.append(bRMaxPred)
-    minPreds.append(bRMinPred)
 
     print("")
     print("Lasso Regression")
-    # train the model using Lasso Regression
-    lassoErrors, lassoMSE, lassoMAE, lassoTrainingTime, lassoTestingTime, lassoR2, lassoBestParams, lassoMaxPred, lassoMinPred = lassoRegression(XTrain, yTrainScaled, XTest, yTestScaled, robot, yScaler)
+    # Solve the IK problem using Lasso Regression
+    lassoErrors, lassoMSE, lassoMAE, lassoTrainingTime, lassoTestingTime, lassoR2, lassoBestParams = lassoRegression(XTrain, yTrainScaled, XTest, yTestScaled, robot, yScaler)
     models.append("Lasso Regression")
     errors.append(lassoErrors)
     mseValues.append(lassoMSE)
@@ -230,28 +205,11 @@ def main():
     testingTimes.append(lassoTestingTime)
     r2Scores.append(lassoR2)
     bestParams.append(lassoBestParams)
-    maxPreds.append(lassoMaxPred)
-    minPreds.append(lassoMinPred)
-
-    print("")
-    print("Kernel Ridge Regression")
-    # train the model using Kernel Ridge Regression
-    kRRErrors, kRRmse, kRRmae, kRRTrainingTime, kRRTestingTime, kRRr2, kRRBestParams, kRRMaxPred, kRRMinPred = kernelRidgeRegression(XTrain, yTrainScaled, XTest, yTestScaled, robot, yScaler)
-    models.append("Kernel Ridge Regression")
-    errors.append(kRRErrors)
-    mseValues.append(kRRmse)
-    maeValues.append(kRRmae)
-    trainingTimes.append(kRRTrainingTime)
-    testingTimes.append(kRRTestingTime)
-    r2Scores.append(kRRr2)
-    bestParams.append(kRRBestParams)
-    maxPreds.append(kRRMaxPred)
-    minPreds.append(kRRMinPred)
 
     print("")
     print("Ridge Regression")
-    # train the model using Ridge Regression
-    rRErrors, rRmse, rRmae, rRTrainingTime, rRTestingTime, rRr2, rRBestParams, rRMaxPred, rRMinPred = ridgeRegression(XTrain, yTrainScaled, XTest, yTestScaled, robot, yScaler)
+    # Solve the IK problem using Ridge Regression
+    rRErrors, rRmse, rRmae, rRTrainingTime, rRTestingTime, rRr2, rRBestParams = ridgeRegression(XTrain, yTrainScaled, XTest, yTestScaled, robot, yScaler)
     models.append("Ridge Regression")
     errors.append(rRErrors)
     mseValues.append(rRmse)
@@ -260,18 +218,29 @@ def main():
     testingTimes.append(rRTestingTime)
     r2Scores.append(rRr2)
     bestParams.append(rRBestParams)
-    maxPreds.append(rRMaxPred)
-    minPreds.append(rRMinPred)
+
+    print("")
+    print("Kernel Ridge Regression")
+    # Solve the IK problem using Kernel Ridge Regression
+    kRRErrors, kRRmse, kRRmae, kRRTrainingTime, kRRTestingTime, kRRr2, kRRBestParams = kernelRidgeRegression(XTrain, yTrainScaled, XTest, yTestScaled, robot, yScaler)
+    models.append("KRR")
+    errors.append(kRRErrors)
+    mseValues.append(kRRmse)
+    maeValues.append(kRRmae)
+    trainingTimes.append(kRRTrainingTime)
+    testingTimes.append(kRRTestingTime)
+    r2Scores.append(kRRr2)
+    bestParams.append(kRRBestParams)
+
     print("")
 
-    # plot the results
-    # plotErrorData(errors, models)
+    # Plot the results
+    plotErrorData(errors, models)
     plotMSEData(mseValues, models)
     plotMAEData(maeValues, models)
     plotTimings(trainingTimes, testingTimes, models)
     plotR2Score(r2Scores, models)
     storeBestParams(bestParams, models)
-    storeMaxMinPredictions(maxPreds, minPreds, models)
 
 
 if __name__ == "__main__":

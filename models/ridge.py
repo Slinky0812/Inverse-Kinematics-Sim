@@ -1,4 +1,4 @@
-# Linear Regression model
+# Ridge Regression Model
 from sklearn.linear_model import Ridge
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import GridSearchCV
@@ -59,18 +59,20 @@ def ridgeRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     # Test the best model
     yPred, testingTime = testModel(XTest, bestLR, scaler)
 
+    # Inverse transform the actual values to get the original scale
+    yTestScaled = scaler.inverse_transform(yTest)
     # Decode angles to ensure equal weighting in distance calculations
-    yTest = decodeAngles(yTest[:, :7], yTest[:, 7:])
+    yTestDecode = decodeAngles(yTestScaled[:, :7], yTestScaled[:, 7:])
 
     # Calculate metrics
-    mse = mean_squared_error(yTest, yPred)
-    mae = mean_absolute_error(yTest, yPred)
-    r2 = r2_score(yTest, yPred)
+    mse = mean_squared_error(yTestDecode, yPred)
+    mae = mean_absolute_error(yTestDecode, yPred)
+    r2 = r2_score(yTestDecode, yPred)
 
     # Calculate pose errors
-    # poseErrors = calculatePoseErrors(yPred, yTest, robot)
-    poseErrors = np.zeros((yPred.shape[0], 6))
+    poseErrors = calculatePoseErrors(yPred, yTestDecode, robot)
 
+    # VALIDATION - Perform fitting on the training set
     yPredTrain = scaler.inverse_transform(bestLR.predict(XTrain))
     yPredTrainDecode = decodeAngles(yPredTrain[:, :7], yPredTrain[:, 7:])
     minPredTrain = np.min(yPredTrainDecode, axis=0)
@@ -78,8 +80,5 @@ def ridgeRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     print("Training set min:", minPredTrain)
     print("Training set max:", maxPredTrain)
     
-    maxPred = np.max(yPred, axis=0)
-    minPred = np.min(yPred, axis=0)
-    
     # Return results
-    return poseErrors, mse, mae, trainingTime, testingTime, r2, gridSearch.best_params_, maxPred, minPred
+    return poseErrors, mse, mae, trainingTime, testingTime, r2, gridSearch.best_params_

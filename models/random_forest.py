@@ -75,10 +75,9 @@ def randomForest(XTrain, yTrain, XTest, yTest, robot):
 	r2 = r2_score(yTest, yPred)
 	
 	# Calculate pose errors
-	# poseErrors = calculatePoseErrors(yPred, yTest, robot)
+	poseErrors = calculatePoseErrors(yPred, yTest, robot)
 
-	poseErrors = np.zeros((yPred.shape[0], 6))
-
+	# VALIDATION - Perform fitting on the training set
 	yPredTrain = bestRF.predict(XTrain)
 	yPredTrainDecode = decodeAngles(yPredTrain[:, :7], yPredTrain[:, 7:])
 	minPredTrain = np.min(yPredTrainDecode, axis=0)
@@ -86,8 +85,5 @@ def randomForest(XTrain, yTrain, XTest, yTest, robot):
 	print("Training set min:", minPredTrain)
 	print("Training set max:", maxPredTrain)
 
-	maxPred = np.max(yPred, axis=0)
-	minPred = np.min(yPred, axis=0)
-
 	# Return results
-	return poseErrors, mse, mae, trainingTime, testingTime, r2, gridSearch.best_params_, maxPred, minPred
+	return poseErrors, mse, mae, trainingTime, testingTime, r2, gridSearch.best_params_

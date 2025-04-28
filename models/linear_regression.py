@@ -1,4 +1,4 @@
-# Linear Regression/Bayesian Linear Regression models
+# Linear Regression/Bayesian Linear Regression Models
 from sklearn.linear_model import LinearRegression, BayesianRidge
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
@@ -62,8 +62,10 @@ def linearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     # Test the best model
     yPred, testingTime = testModel(XTest, bestLR, scaler)
 
+    # Inverse transform the actual values to get them back to the original scale
+    yTestScaled = scaler.inverse_transform(yTest)
     # Decode angles to ensure equal weighting in distance calculations
-    yTestDecode = decodeAngles(yTest[:, :7], yTest[:, 7:])
+    yTestDecode = decodeAngles(yTestScaled[:, :7], yTestScaled[:, 7:])
 
     # Calculate metrics
     mse = mean_squared_error(yTestDecode, yPred)
@@ -71,9 +73,9 @@ def linearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     r2 = r2_score(yTestDecode, yPred)
 
     # Calculate pose errors
-    # poseErrors = calculatePoseErrors(yPred, yTestDecode, robot)
-    poseErrors = np.zeros((yPred.shape[0], 6))
+    poseErrors = calculatePoseErrors(yPred, yTestDecode, robot)
 
+    #  VALIDATION - Perform fitting on the training set
     yPredTrain = scaler.inverse_transform(bestLR.predict(XTrain))
     yPredTrainDecode = decodeAngles(yPredTrain[:, :7], yPredTrain[:, 7:])
     minPredTrain = np.min(yPredTrainDecode, axis=0)
@@ -81,11 +83,8 @@ def linearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     print("Training set min:", minPredTrain)
     print("Training set max:", maxPredTrain)
 
-    maxPred = np.max(yPred, axis=0)
-    minPred = np.min(yPred, axis=0)
-
     # Return results
-    return poseErrors, mse, mae, trainingTime, testingTime, r2, gridSearch.best_params_, maxPred, minPred
+    return poseErrors, mse, mae, trainingTime, testingTime, r2, gridSearch.best_params_
 
 
 def bayesianLinearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
@@ -107,11 +106,11 @@ def bayesianLinearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
         - trainingTime (float): Training time
         - testingTime (float): Testing time
         - r2 (float): R² score
-        - search.best_params_: Best parameters for the model
+        - randomSearch.best_params_: Best parameters for the model
     """
     # Create pipeline
     pipeline = make_pipeline(
-        scaler,
+        StandardScaler(),
         MultiOutputRegressor(BayesianRidge(compute_score=True, verbose=True))
     )
 
@@ -124,43 +123,42 @@ def bayesianLinearRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     }
 
     # Perform randomized search 
-    search = RandomizedSearchCV(
+    randomSearch = RandomizedSearchCV(
         pipeline,
         paramGrid,
         cv=3,
         scoring='neg_mean_squared_error',
         n_jobs=-1,
     )
-    search.fit(XTrain, yTrain)
+    randomSearch.fit(XTrain, yTrain)
 
     # Find the best model
-    bestBR = search.best_estimator_
-    trainingTime = search.cv_results_['mean_fit_time'][search.best_index_]
+    bestBR = randomSearch.best_estimator_
+    trainingTime = randomSearch.cv_results_['mean_fit_time'][randomSearch.best_index_]
 
     # Test the best model
     yPred, testingTime = testModel(XTest, bestBR, scaler)
 
+    # Inverse transform the actual values to get them back to the original scale
+    yTestScaled = scaler.inverse_transform(yTest)
     # Decode angles to ensure equal weighting in distance calculations
-    yTest = decodeAngles(yTest[:, :7], yTest[:, 7:])
+    yTestDecode = decodeAngles(yTestScaled[:, :7], yTestScaled[:, 7:])
 
     # Calculate metrics
-    mse = mean_squared_error(yTest, yPred)
-    mae = mean_absolute_error(yTest, yPred)
-    r2 = r2_score(yTest, yPred)
+    mse = mean_squared_error(yTestDecode, yPred)
+    mae = mean_absolute_error(yTestDecode, yPred)
+    r2 = r2_score(yTestDecode, yPred)
 
     # Calculate pose errors
-    # pose_errors = calculatePoseErrors(yPred, yTest, robot)
-    poseErrors = np.zeros((yPred.shape[0], 6))
+    poseErrors = calculatePoseErrors(yPred, yTestDecode, robot)
 
+    # VALIDATION - Perform fitting on the training set
     yPredTrain = scaler.inverse_transform(bestBR.predict(XTrain))
     yPredTrainDecode = decodeAngles(yPredTrain[:, :7], yPredTrain[:, 7:])
     minPredTrain = np.min(yPredTrainDecode, axis=0)
     maxPredTrain = np.max(yPredTrainDecode, axis=0)
     print("Training set min:", minPredTrain)
     print("Training set max:", maxPredTrain)
-
-    maxPred = np.max(yPred, axis=0)
-    minPred = np.min(yPred, axis=0)
     
     # Return results
-    return poseErrors, mse, mae, trainingTime, testingTime, r2, search.best_params_, maxPred, minPred
+    return poseErrors, mse, mae, trainingTime, testingTime, r2, randomSearch.best_params_
