@@ -7,7 +7,7 @@ from sklearn.preprocessing import StandardScaler
 
 from generate.generate_data import calculatePoseErrors, testModel, decodeAngles
 
-from test.test import testFittingOnTrainingSet
+from test.test import testFittingOnTrainingSet, testKFoldCV
 
 
 def kernelRidgeRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
@@ -57,7 +57,10 @@ def kernelRidgeRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     # Find the best model
     bestKR = gridSearch.best_estimator_
     trainingTime = gridSearch.cv_results_['mean_fit_time'][gridSearch.best_index_]
-    
+
+    # Perform k-Fold Cross-Validation
+    testKFoldCV(XTrain, yTrain, bestKR, k=5, scaler=scaler, modelName="Kernel Ridge Regression")
+
     # Test the best model
     yPred, testingTime = testModel(XTest, bestKR, scaler)
 

@@ -6,7 +6,7 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 from generate.generate_data import testModel, calculatePoseErrors, decodeAngles
 
-from test.test import testFittingOnTrainingSet
+from test.test import testFittingOnTrainingSet, testKFoldCV
 
 
 def randomForest(XTrain, yTrain, XTest, yTest, robot):
@@ -56,6 +56,9 @@ def randomForest(XTrain, yTrain, XTest, yTest, robot):
 	# Find the best model
 	bestRF = gridSearch.best_estimator_
 	trainingTime = gridSearch.cv_results_['mean_fit_time'][gridSearch.best_index_]
+
+	# Perform k-Fold Cross-Validation
+	testKFoldCV(XTrain, yTrain, bestRF, k=5, scaler=None, modelName="Random Forest")
 	
 	# Test the best model
 	yPred, testingTime = testModel(XTest, bestRF, None)  # No scaler needed for Random Forest

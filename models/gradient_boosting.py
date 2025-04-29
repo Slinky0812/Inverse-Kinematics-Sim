@@ -7,7 +7,7 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 from generate.generate_data import testModel, calculatePoseErrors, decodeAngles
 
-from test.test import testFittingOnTrainingSet
+from test.test import testFittingOnTrainingSet, testKFoldCV
 
 
 def gradientBoosting(XTrain, yTrain, XTest, yTest, robot):
@@ -62,6 +62,9 @@ def gradientBoosting(XTrain, yTrain, XTest, yTest, robot):
 	# Find the best model
 	bestGB = randomSearch.best_estimator_
 	trainingTime = randomSearch.cv_results_['mean_fit_time'][randomSearch.best_index_]
+
+	# Perform k-Fold Cross-Validation
+	testKFoldCV(XTrain, yTrain, bestGB, k=5, scaler=None, modelName="Gradient Boosting")
 	
 	# Test the best model
 	yPred, testingTime = testModel(XTest, bestGB, None)  # No scaler used in this case

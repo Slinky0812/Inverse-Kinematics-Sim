@@ -8,7 +8,7 @@ from sklearn.preprocessing import StandardScaler
 
 from generate.generate_data import calculatePoseErrors, testModel, decodeAngles
 
-from test.test import testFittingOnTrainingSet
+from test.test import testFittingOnTrainingSet, testKFoldCV
 
 
 def gaussianProcessRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
@@ -75,6 +75,9 @@ def gaussianProcessRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     # Find the best model
     bestGP = randomSearch.best_estimator_
     trainingTime = randomSearch.cv_results_['mean_fit_time'][randomSearch.best_index_]
+
+    # Perform k-Fold Cross-Validation
+    testKFoldCV(XTrain, yTrain, bestGP, k=5, scaler=scaler, modelName="Gaussian Process Regression")
     
     # Test the best model
     yPred, testingTime = testModel(XTest, bestGP, scaler)

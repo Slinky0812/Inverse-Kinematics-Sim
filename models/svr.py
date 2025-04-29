@@ -8,7 +8,7 @@ from sklearn.preprocessing import StandardScaler
 
 from generate.generate_data import calculatePoseErrors, testModel, decodeAngles
 
-from test.test import testFittingOnTrainingSet
+from test.test import testFittingOnTrainingSet, testKFoldCV
 
 
 def supportVectorRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
@@ -57,6 +57,9 @@ def supportVectorRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     # Find the best model
     bestSVR = gridSearch.best_estimator_
     trainingTime = gridSearch.cv_results_['mean_fit_time'][gridSearch.best_index_]
+
+    # Perform k-Fold Cross-Validation
+    testKFoldCV(XTrain, yTrain, bestSVR, k=5, scaler=scaler, modelName="Support Vector Regression")
 
     # Test the best model
     yPred, testingTime = testModel(XTest, bestSVR, scaler)

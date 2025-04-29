@@ -6,7 +6,7 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 from generate.generate_data import testModel, calculatePoseErrors, decodeAngles
 
-from test.test import testFittingOnTrainingSet
+from test.test import testFittingOnTrainingSet, testKFoldCV
 
 
 def decisionTree(XTrain, yTrain, XTest, yTest, robot):
@@ -57,6 +57,9 @@ def decisionTree(XTrain, yTrain, XTest, yTest, robot):
     # Find the best model
     bestDT = gridSearch.best_estimator_
     trainingTime = gridSearch.cv_results_['mean_fit_time'][gridSearch.best_index_]
+
+    # Perform k-Fold Cross-Validation
+    testKFoldCV(XTrain, yTrain, bestDT, k=5, scaler=None, modelName="Decision Tree") # No scaler needed for Decision Tree
 
     # Test the best model
     yPred, testingTime = testModel(XTest, bestDT, None) # No scaler needed for Decision Tree

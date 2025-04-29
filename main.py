@@ -67,6 +67,10 @@ def main():
     yTrainScaled = yScaler.fit_transform(yTrain)
     yTestScaled = yScaler.transform(yTest)
 
+    # Clear out previous results from the k-Fold Cross-Validation results file
+    with open('results/k_fold_cv_results.txt', 'w') as f:
+        f.write("K-Fold Cross-Validation Results\n\n")
+
     # Create lists to keep track of models, errors, timings, mae and mse values, and R² scores
     models = []
     errors = []
