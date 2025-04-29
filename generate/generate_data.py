@@ -92,7 +92,12 @@ def testModel(XTest, model, scaler):
         - testingTime (float): Testing time
     """
     startTest = time.time()
-    yPred = scaler.inverse_transform(model.predict(XTest))
+    
+    if scaler is not None:
+        yPred = scaler.inverse_transform(model.predict(XTest))
+    else:
+        yPred = model.predict(XTest)
+    
     # Decode angles to ensure equal weighting in distance calculations
     yPredDecoded = decodeAngles(yPred[:, :7], yPred[:, 7:])
     endTest = time.time()

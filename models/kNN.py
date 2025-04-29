@@ -7,7 +7,7 @@ from sklearn.preprocessing import StandardScaler
 
 from generate.generate_data import calculatePoseErrors, testModel, decodeAngles
 
-import numpy as np
+from test.test import testFittingOnTrainingSet
 
 
 def kNN(XTrain, yTrain, XTest, yTest, robot, scaler):
@@ -76,12 +76,7 @@ def kNN(XTrain, yTrain, XTest, yTest, robot, scaler):
     poseErrors = calculatePoseErrors(yPred, yTestDecode, robot)
 
     # VALIDATION - Perform fitting on the training set
-    yPredTrain = scaler.inverse_transform(bestKNN.predict(XTrain))
-    yPredTrainDecode = decodeAngles(yPredTrain[:, :7], yPredTrain[:, 7:])
-    minPredTrain = np.min(yPredTrainDecode, axis=0)
-    maxPredTrain = np.max(yPredTrainDecode, axis=0)
-    print("Training set min:", minPredTrain)
-    print("Training set max:", maxPredTrain)
+    testFittingOnTrainingSet(XTrain, bestKNN, scaler, "kNN")
 
     # Return results
     return poseErrors, mse, mae, trainingTime, testingTime, r2, gridSearch.best_params_

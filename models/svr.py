@@ -8,7 +8,7 @@ from sklearn.preprocessing import StandardScaler
 
 from generate.generate_data import calculatePoseErrors, testModel, decodeAngles
 
-import numpy as np
+from test.test import testFittingOnTrainingSet
 
 
 def supportVectorRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
@@ -55,11 +55,11 @@ def supportVectorRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     gridSearch.fit(XTrain, yTrain)
     
     # Find the best model
-    bestMultiSVR = gridSearch.best_estimator_
+    bestSVR = gridSearch.best_estimator_
     trainingTime = gridSearch.cv_results_['mean_fit_time'][gridSearch.best_index_]
 
     # Test the best model
-    yPred, testingTime = testModel(XTest, bestMultiSVR, scaler)
+    yPred, testingTime = testModel(XTest, bestSVR, scaler)
 
     # Inverse transform the actual values to get the original scale
     yTestScaled = scaler.inverse_transform(yTest)
@@ -75,12 +75,7 @@ def supportVectorRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
     poseErrors = calculatePoseErrors(yPred, yTestDecode, robot)
 
     # VALIDATION - Perform fitting on the training set
-    yPredTrain = scaler.inverse_transform(bestMultiSVR.predict(XTrain))
-    yPredTrainDecode = decodeAngles(yPredTrain[:, :7], yPredTrain[:, 7:])
-    minPredTrain = np.min(yPredTrainDecode, axis=0)
-    maxPredTrain = np.max(yPredTrainDecode, axis=0)
-    print("Training set min:", minPredTrain)
-    print("Training set max:", maxPredTrain)
+    testFittingOnTrainingSet(XTrain, bestSVR, scaler, "Support Vector Regression")
 
     # Return results
     return poseErrors, mse, mae, trainingTime, testingTime, r2, gridSearch.best_params_

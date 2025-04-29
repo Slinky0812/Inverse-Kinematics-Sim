@@ -56,9 +56,10 @@ def main():
 
     # VALIDATION - Print the min and max values of the joint angles in the training set
     yTrainDecoded = decodeAngles(yTrain[:, :7], yTrain[:, 7:])
-    print("")
-    print("Min y (train):", np.min(yTrainDecoded, axis=0))
-    print("Max y (train):", np.max(yTrainDecoded, axis=0))
+    with open('results/training_set_min_and_max.txt', 'w') as f:
+        f.write("yTrain:\n")
+        f.write(f"Min: {np.min(yTrainDecoded, axis=0)}\n")
+        f.write(f"Max: {np.max(yTrainDecoded, axis=0)}\n\n")
 
     # Normalise features to ensure equal weighting in distance calculations
     yScaler = StandardScaler()

@@ -4,10 +4,9 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-from generate.generate_data import calculatePoseErrors, decodeAngles
+from generate.generate_data import testModel, calculatePoseErrors, decodeAngles
 
-import time
-import numpy as np
+from test.test import testFittingOnTrainingSet
 
 
 def decisionTree(XTrain, yTrain, XTest, yTest, robot):
@@ -60,11 +59,7 @@ def decisionTree(XTrain, yTrain, XTest, yTest, robot):
     trainingTime = gridSearch.cv_results_['mean_fit_time'][gridSearch.best_index_]
 
     # Test the best model
-    startTest = time.time()
-    yPred = bestDT.predict(XTest)
-    yPred = decodeAngles(yPred[:, :7], yPred[:, 7:])  # Decode angles to match the original scale
-    endTest = time.time()
-    testingTime = endTest - startTest
+    yPred, testingTime = testModel(XTest, bestDT, None) # No scaler needed for Decision Tree
     
     # Decode angles to ensure equal weighting in distance calculations
     yTest = decodeAngles(yTest[:, :7], yTest[:, 7:])
@@ -78,12 +73,7 @@ def decisionTree(XTrain, yTrain, XTest, yTest, robot):
     poseErrors = calculatePoseErrors(yPred, yTest, robot)
 
     # VALIDATION - Perform fitting on the training set
-    yPredTrain = bestDT.predict(XTrain)
-    yPredTrainDecode = decodeAngles(yPredTrain[:, :7], yPredTrain[:, 7:])
-    minPredTrain = np.min(yPredTrainDecode, axis=0)
-    maxPredTrain = np.max(yPredTrainDecode, axis=0)
-    print("Training set min:", minPredTrain)
-    print("Training set max:", maxPredTrain)
+    testFittingOnTrainingSet(XTrain, bestDT, None, "Decision Tree") # No scaler needed for Decision Tree
 
     # Return results
     return poseErrors, mse, mae, trainingTime, testingTime, r2, gridSearch.best_params_

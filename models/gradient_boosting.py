@@ -5,10 +5,9 @@ from sklearn.model_selection import RandomizedSearchCV
 from sklearn.multioutput import MultiOutputRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-from generate.generate_data import calculatePoseErrors, decodeAngles
+from generate.generate_data import testModel, calculatePoseErrors, decodeAngles
 
-import time
-import numpy as np
+from test.test import testFittingOnTrainingSet
 
 
 def gradientBoosting(XTrain, yTrain, XTest, yTest, robot):
@@ -65,12 +64,7 @@ def gradientBoosting(XTrain, yTrain, XTest, yTest, robot):
 	trainingTime = randomSearch.cv_results_['mean_fit_time'][randomSearch.best_index_]
 	
 	# Test the best model
-	startTest = time.time()
-	yPred = bestGB.predict(XTest)
-	# Decode angles to ensure equal weighting in distance calculations
-	yPred = decodeAngles(yPred[:, :7], yPred[:, 7:])
-	endTest = time.time()
-	testingTime = endTest - startTest
+	yPred, testingTime = testModel(XTest, bestGB, None)  # No scaler used in this case
 
 	# Decode angles to ensure equal weighting in distance calculations
 	yTest = decodeAngles(yTest[:, :7], yTest[:, 7:])
@@ -84,12 +78,7 @@ def gradientBoosting(XTrain, yTrain, XTest, yTest, robot):
 	poseErrors = calculatePoseErrors(yPred, yTest, robot)
 	
 	# VALIDATION - Perform fitting on the training set
-	yPredTrain = bestGB.predict(XTrain)
-	yPredTrainDecode = decodeAngles(yPredTrain[:, :7], yPredTrain[:, 7:])
-	minPredTrain = np.min(yPredTrainDecode, axis=0)
-	maxPredTrain = np.max(yPredTrainDecode, axis=0)
-	print("Training set min:", minPredTrain)
-	print("Training set max:", maxPredTrain)
+	testFittingOnTrainingSet(XTrain, bestGB, None, "Gradient Boosting")  # No scaler needed for Gradient Boosting
 
 	# Return results
 	return poseErrors, mse, mae, trainingTime, testingTime, r2, randomSearch.best_params_
