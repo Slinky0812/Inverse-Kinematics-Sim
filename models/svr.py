@@ -49,7 +49,7 @@ def supportVectorRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
         svrPipe, 
         paramGrid, 
         cv=3, 
-        n_jobs=2, 
+        n_jobs=-1, 
         scoring='neg_mean_squared_error'
     )
     gridSearch.fit(XTrain, yTrain)
