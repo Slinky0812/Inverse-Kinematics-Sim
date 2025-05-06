@@ -66,7 +66,7 @@ def gaussianProcessRegression(XTrain, yTrain, XTest, yTest, robot, scaler):
         gpPipe,
         paramGrid,
         cv=3,
-        n_jobs=-1,
+        n_jobs=2,
         scoring='neg_mean_squared_error',
         random_state=42
     )
