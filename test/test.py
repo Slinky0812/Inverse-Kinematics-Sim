@@ -53,8 +53,10 @@ def testKFoldCV(X, y, model, k, scaler, modelName):
         # Test the model on the test set
         yPred, _ = testModel(XTest, model, scaler)
 
-        # Inverse transform the actual values to get them back to the original scale
-        yTest = scaler.inverse_transform(yTest)
+        if scaler is not None:
+            # Inverse transform the actual values to get them back to the original scale
+            yTest = scaler.inverse_transform(yTest)
+        
         # Decode angles to ensure equal weighting in distance calculations
         yTestDecode = decodeAngles(yTest[:, :7], yTest[:, 7:])
 

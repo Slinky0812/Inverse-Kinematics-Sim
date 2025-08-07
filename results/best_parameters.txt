@@ -1,0 +1,25 @@
+The model kNN's best parameters are: {'kneighborsregressor__n_neighbors': 2, 'kneighborsregressor__p': 1, 'kneighborsregressor__weights': 'distance'}
+
+The model Linear Regression's best parameters are: {'linearregression__fit_intercept': False, 'linearregression__positive': False}
+
+The model Neural Networks's best parameters are: {'cv': 3, 'error_score': nan, 'estimator__memory': None, 'estimator__steps': [('standardscaler', StandardScaler()), ('mlpregressor', MLPRegressor(warm_start=True))], 'estimator__transform_input': None, 'estimator__verbose': False, 'estimator__standardscaler': StandardScaler(), 'estimator__mlpregressor': MLPRegressor(warm_start=True), 'estimator__standardscaler__copy': True, 'estimator__standardscaler__with_mean': True, 'estimator__standardscaler__with_std': True, 'estimator__mlpregressor__activation': 'relu', 'estimator__mlpregressor__alpha': 0.0001, 'estimator__mlpregressor__batch_size': 'auto', 'estimator__mlpregressor__beta_1': 0.9, 'estimator__mlpregressor__beta_2': 0.999, 'estimator__mlpregressor__early_stopping': False, 'estimator__mlpregressor__epsilon': 1e-08, 'estimator__mlpregressor__hidden_layer_sizes': (100,), 'estimator__mlpregressor__learning_rate': 'constant', 'estimator__mlpregressor__learning_rate_init': 0.001, 'estimator__mlpregressor__max_fun': 15000, 'estimator__mlpregressor__max_iter': 200, 'estimator__mlpregressor__momentum': 0.9, 'estimator__mlpregressor__n_iter_no_change': 10, 'estimator__mlpregressor__nesterovs_momentum': True, 'estimator__mlpregressor__power_t': 0.5, 'estimator__mlpregressor__random_state': None, 'estimator__mlpregressor__shuffle': True, 'estimator__mlpregressor__solver': 'adam', 'estimator__mlpregressor__tol': 0.0001, 'estimator__mlpregressor__validation_fraction': 0.1, 'estimator__mlpregressor__verbose': False, 'estimator__mlpregressor__warm_start': True, 'estimator': Pipeline(steps=[('standardscaler', StandardScaler()),
+                ('mlpregressor', MLPRegressor(warm_start=True))]), 'n_jobs': -1, 'param_grid': {'mlpregressor__hidden_layer_sizes': [(256, 256), (512, 256, 128), (128, 128), (512, 512)], 'mlpregressor__activation': ['relu', 'tanh'], 'mlpregressor__solver': ['adam', 'sgd'], 'mlpregressor__max_iter': [5000], 'mlpregressor__early_stopping': [True], 'mlpregressor__validation_fraction': [0.15], 'mlpregressor__n_iter_no_change': [25], 'mlpregressor__learning_rate': ['adaptive'], 'mlpregressor__alpha': [0.0001, 0.001, 0.01], 'mlpregressor__random_state': [42]}, 'pre_dispatch': '2*n_jobs', 'refit': True, 'return_train_score': False, 'scoring': 'neg_mean_squared_error', 'verbose': 0}
+
+The model Decision Trees's best parameters are: {'decisiontreeregressor__ccp_alpha': 0.0, 'decisiontreeregressor__max_depth': 20, 'decisiontreeregressor__max_features': None, 'decisiontreeregressor__min_samples_leaf': 2, 'decisiontreeregressor__min_samples_split': 5}
+
+The model SVR's best parameters are: {'multioutputregressor__estimator__C': 1, 'multioutputregressor__estimator__epsilon': 0.5}
+
+The model Random Forest's best parameters are: {'randomforestregressor__max_depth': None, 'randomforestregressor__min_samples_leaf': 1, 'randomforestregressor__min_samples_split': 2, 'randomforestregressor__n_estimators': 100}
+
+The model Gradient Boosting's best parameters are: {'multioutputregressor__estimator__subsample': 0.7, 'multioutputregressor__estimator__random_state': 42, 'multioutputregressor__estimator__n_estimators': 100, 'multioutputregressor__estimator__min_samples_split': 2, 'multioutputregressor__estimator__min_samples_leaf': 5, 'multioutputregressor__estimator__max_features': 'log2', 'multioutputregressor__estimator__max_depth': None, 'multioutputregressor__estimator__loss': 'absolute_error', 'multioutputregressor__estimator__learning_rate': 0.1}
+
+The model GPR's best parameters are: {'gaussianprocessregressor__random_state': 42, 'gaussianprocessregressor__n_restarts_optimizer': 1, 'gaussianprocessregressor__kernel': 1**2 * RationalQuadratic(alpha=1, length_scale=1) + WhiteKernel(noise_level=0.001), 'gaussianprocessregressor__alpha': 1e-05}
+
+The model BLR's best parameters are: {'multioutputregressor__estimator__alpha_1': np.float64(1.4550832455512834e-07), 'multioutputregressor__estimator__alpha_2': np.float64(4.922062824848859e-05), 'multioutputregressor__estimator__lambda_1': np.float64(8.445278647932393e-06), 'multioutputregressor__estimator__lambda_2': np.float64(6.295635452985588e-05)}
+
+The model Lasso Regression's best parameters are: {'lasso__alpha': 0.01}
+
+The model Ridge Regression's best parameters are: {'ridge__alpha': np.float64(1.0)}
+
+The model KRR's best parameters are: {'kernelridge__alpha': 0.01, 'kernelridge__gamma': 10.0, 'kernelridge__kernel': 'rbf'}
+
